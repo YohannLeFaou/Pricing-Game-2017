@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "# Project: Olivier_tarif_prov\n# \n# Author: kossi\n###############################################################################\n\n\n\nsetwd(\"C:/Users/BIGDATA/Documents/BIG DATA 2/Projets_Rstudio/PERSO/Tarif_Shiny\") ## Chemin où se trouve le fichier décompressé\n\nif(!require(shiny)){\n\tinstall.packages(\"shiny\", dependencies = TRUE)\n\trequire(shiny)\n}\n\nrunApp(\"Tarif_Shiny\")\n\n",
+    "created" : 1474470722777.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "627551485",
+    "id" : "542DC461",
+    "lastKnownWriteTime" : 1474470808,
+    "last_content_update" : 1474470808756,
+    "path" : "~/BIG DATA 2/Projets_Rstudio/PERSO/SHINY/Tarif_Shiny/run.R",
+    "project_path" : "run.R",
+    "properties" : {
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "# Project: Olivier_tarif_prov\n# \n# Author: kossi\n###############################################################################\n\n\n###\n###tarification et calcul de primes pures\n###\nBASEN=read.table(\"http://freakonometrics.free.fr/baseN.txt\",header=TRUE,sep=\";\") #Base des sinistres car elle contient la\n#variable nombre\n\nBASEY=read.table(\"http://freakonometrics.free.fr/baseY.txt\",header=TRUE,sep=\";\") #Base des couts car elle contient la \n#variable cout\n\n\n#Parmi les variables, la description (sommaire) est la suivante,\n#1-ageconducteur: age du conducteur principal du vehicule\n#2-agepermis: anciennete du permis de conduire du conducteur principal du vehicule\n#3-sexeconducteur: sexe du conducteur principal (H ou F)\n#4-situationfamiliale: situation familiale du conducteur principal (\"Celiba\", \"Marie\" ou \"Veuf/Div\")\n#5-habitation: zone d'habitation du conducteur principal (\"peri-urbain\", \"rural\" ou \"urbain\" )\n#6-zone: zone d'habitation (allant de 1 a 8)\n#7-agevehicule: age du vehicule\n#8-proprietaire: si le conducteur principal possede un contrat Habitation, son statut (\"locataire\" ou \"proprietaire\")  Sinon \"sans mrp\"\n#9-payment:type de fractionnement de la prime d'assurance automobile (\"Annuel\", \"Mensuel\" ou \"Semestriel\")\n#10-marque: marque du vehicule\n#11-poids: classe de poids du vehicule\n#12-usage: utilisation du vehicule principal (\"PROMENADE\" ou \"TOUS_DEPLACEMENTS\")\n#13-exposition: exposition, en annees (exposition, i.e. la duree de la periode de couverture: une personne restant 6 mois au lieu d'un an devrait avoir deux fois moins de sinistres, en moyenne, qu'une personne ayant des caracteristiques identiques.)\n#14-nombre: nombre d'accident responsabilite civile du conducteur principal, pendant l'annee passee\n#15-cout: cout du sinistre\n#16-voiture: type de vehicule\n\n",
+    "created" : 1474470734113.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "498715993",
+    "id" : "3B95D32F",
+    "lastKnownWriteTime" : 1426484756,
+    "last_content_update" : 1426484756,
+    "path" : "~/BIG DATA 2/Projets_Rstudio/PERSO/SHINY/Tarif_Shiny/global.R",
+    "project_path" : "global.R",
+    "properties" : {
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

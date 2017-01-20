@@ -1,0 +1,7 @@
+{
+    "installOptions" : {
+        "installDependencies" : true,
+        "installFromRepository" : true,
+        "libraryPath" : "\\\\SRV002-ms4/YLEF$/Utilisateur/R/win-library/3.2"
+    }
+}
