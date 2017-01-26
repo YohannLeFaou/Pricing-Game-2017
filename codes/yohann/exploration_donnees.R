@@ -1,57 +1,59 @@
-
 library(dplyr)
 library(ggplot2)
 
+#---------------------------------------------------------------------------------------------------------------------------------------------------
+#
+#															Fonctions
+#
+#---------------------------------------------------------------------------------------------------------------------------------------------------
+
+
 mean_sd_by_modal = function(data, var_y, var_x, scale_y = 0){
-  ### fonction qui permet de reprÈsenter pour une variable quali, la moyenne et l'Ècart type par modalitÈ, ainsi que la
-  ### la distribution de var_x
-  # data : data.frame ; contient var_y et var_x
-  # var_y : string ; nom de la variable Y
-  # var_x : string ; nom de la variable X
-  # scale_y : numeric >= 0 (par dÈfaut 0) ; permet d'Èlargir la fenÍtre des valeurs de Y
-  stat = aggregate(x = data[,var_y],
-                   by = list(var_x = data[,var_x]),
-                   FUN = function(x){c(moyenne = mean(x),ecart_type = sd(x))})
-  
-  stat$moyenne = stat$x[,"moyenne"]
-  stat$ecart_type = stat$x[,"ecart_type"] / 4
-  stat$borne_inf = stat$moyenne - stat$ecart_type
-  stat$borne_sup = stat$moyenne + stat$ecart_type
-  stat$x2 = stat$var_x
-  
-  plot1 = 
-    ggplot( aes_string(x = var_x) , 
-            data = data[!is.na(data[,var_y]) & (data[,var_y] > 0),]) +
-    geom_bar(aes(y = (..count..)/sum(..count..))) +
-    #ggtitle("Distribution de ns_DTA_norm :\n Parts de valeurs nulles/non nulles") +
-    #theme_bw() +
-    scale_y_continuous(labels = percent) +
-    theme(text = element_text(size = 17)) +
-    ylab(paste0("Distribution ",var_x)) +
-    xlab("")
-  
-  plot2 = ggplot(data = stat, aes(x = factor(x2), y = moyenne, group = 1)) +
-    geom_line(size = 1.2) +
-    geom_ribbon(aes(ymin = borne_inf, ymax = borne_sup), fill = "blue", alpha = 0.3) +
-    #guides(colour = guide_legend(override.aes = list(size = 10), title = "LÈgende : ") ) +
-    theme(text = element_text(size=17),
-          axis.text.x=element_blank(),
-          axis.ticks.x=element_blank(),
-          axis.title.x = element_blank()) +
-    ylab(paste0("Moyenne ", var_y)) +
-    ggtitle(paste0("Moyenne par modalitÈ +/- 1/4.ecart type : ",var_x)) +
-    scale_y_continuous(limits = c( stat$borne_inf[which.min(stat$borne_inf)] - 
-                                     (stat$moyenne[which.min(stat$borne_inf)] -
-                                        stat$borne_inf[which.min(stat$borne_inf)]) * scale_y,
-                                   stat$borne_sup[which.max(stat$borne_sup)] - 
+### fonction qui permet de repr√©senter pour une variable quali, la moyenne et l'√©cart type par modalit√©, ainsi que la
+### la distribution de var_x
+# data : data.frame ; contient var_y et var_x
+# var_y : string ; nom de la variable Y
+# var_x : string ; nom de la variable X
+# scale_y : numeric >= 0 (par d√©faut 0) ; permet d'√©largir la fen√™tre des valeurs de Y
+		stat = aggregate(x = data[,var_y],
+		               by = list(var_x = data[,var_x]),
+		               FUN = function(x){c(moyenne = mean(x),ecart_type = sd(x))})
+
+		stat$moyenne = stat$x[,"moyenne"]
+		stat$ecart_type = stat$x[,"ecart_type"] / 4
+		stat$borne_inf = stat$moyenne - stat$ecart_type
+		stat$borne_sup = stat$moyenne + stat$ecart_type
+		stat$x2 = stat$var_x
+
+plot1 = ggplot( aes_string(x = var_x) , 
+     	data = data[!is.na(data[,var_y]) & (data[,var_y] > 0),]) +
+		geom_bar(aes(y = (..count..)/sum(..count..))) +
+		scale_y_continuous(labels = scales::percent) +
+		theme(text = element_text(size = 17)) +
+		ylab(paste0("Distribution ",var_x)) +
+		xlab("")
+
+plot2 = ggplot(data = stat, aes(x = factor(x2), y = moyenne, group = 1)) +
+		geom_line(size = 1.2) +
+		geom_ribbon(aes(ymin = borne_inf, ymax = borne_sup), fill = "blue", alpha = 0.3) +
+		theme(text = element_text(size=17),
+      	axis.text.x=element_blank(),
+      	axis.ticks.x=element_blank(),
+      	axis.title.x = element_blank()) +
+		ylab(paste0("Moyenne ", var_y)) +
+		ggtitle(paste0("Moyenne par modalit? +/- 1/4.ecart type : ",var_x)) +
+		scale_y_continuous(limits = c(stat$borne_inf[which.min(stat$borne_inf)] - 
+                                 	 (stat$moyenne[which.min(stat$borne_inf)] -
+                                      stat$borne_inf[which.min(stat$borne_inf)]) * scale_y,
+                                      stat$borne_sup[which.max(stat$borne_sup)] - 
                                      (stat$moyenne[which.max(stat$borne_sup)] -
-                                        stat$borne_sup[which.max(stat$borne_sup)]) * scale_y ) )
-  
-  multiplot(plot2, plot1, cols = 1)
+                                      stat$borne_sup[which.max(stat$borne_sup)]) * scale_y ) )
+
+multiplot(plot2, plot1, cols = 1)
 }
 
 scatter_plot = function(var_y, var_x, data){
-  ggplot(data = data, aes_string(x = var_x, y = var_y)) +
+    ggplot(data = data, aes_string(x = var_x, y = var_y)) +
     geom_point(alpha = 0.3, colour = "blue") +
     geom_smooth(colour = "red") +
     theme_bw() +
@@ -60,12 +62,12 @@ scatter_plot = function(var_y, var_x, data){
 }
 
 scatter_plot_int = function(var_y, var_x, data){
-  a = data[,c(var_x, var_y)]
-  colnames(a) = c("x","y")
-  to_plot = a %>% 
+    a = data[,c(var_x, var_y)]
+    colnames(a) = c("x","y")
+    to_plot = a %>% 
     group_by(x) %>% 
     summarise(y = mean(y))
-  ggplot(data = to_plot, aes(x = x, y = y)) +
+    ggplot(data = to_plot, aes(x = x, y = y)) +
     geom_point(alpha = 0.3, colour = "blue") +
     geom_smooth(colour = "red") +
     theme_bw() +
@@ -112,40 +114,47 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
 }
 
 
-############## Chargement des donnees
+#---------------------------------------------------------------------------------------------------------------------------------------------------
+#
+#															Import des donn√©es
+#
+#---------------------------------------------------------------------------------------------------------------------------------------------------
 
-setwd("Y:/Forsides France/06_Solo/Yohann LE FAOU/mission_forsides/pricing_game_2017/codes/yohann")
+setwd("C:/Users/Arthur/Documents/Pricing game/Pricing-Game-2017-master/codes/yohann")
 
 data_claim0 = read.csv(file = "../../data/PG_2017_CLAIMS_YEAR0.csv", sep = ",", dec = ".", header = T)
 data_prospect0 = read.csv(file = "../../data/PG_2017_YEAR0.csv", sep = ",", dec = ".", header = T)
 data_prospect1 = read.csv(file = "../../data/PG_2017_YEAR1.csv", sep = ",", dec = ".", header = T)
 
-data0
+#Remarques sur les donn√©es
+#Les sinistres en 0 (data_claim0)
 
-# remarques sur les donnees
-## data_claim0
-### si plusieurs sinistre pour un indiv. parfois il y a des trop payÈs qui sont reverses 
-### ‡ l'assurance comme l‡ (Áa crÈ sinistre negatifs parfois)
+#Parfois il y a des trop pay√©s, ce qui explique les somme n√©gatives (qui sont des r√©gularisations par l'assureur)
+#Exemples
 data_claim0[which(data_claim0$id_client == "A00033511"),]
 data_claim0[which(data_claim0$id_client == "A00058104"),]
 data_claim0[which(data_claim0$id_client == "A00000241"),]
-data_claim0[which(data_claim0$id_client == "A00003988"),] ## somme des sinistres est nÈgative sur 1 an
+data_claim0[which(data_claim0$id_client == "A00003988"),] ## somme des sinistres est n?gative sur 1 an
 
 
-### on voit ici que 1 ligne = 1 id_client, 1 id_vehicule, 1 id_claim (faudrait regrouper comme Áa)
+#Dans la base (data_claim0) une ligne vaut pour un client et une voiture et une d√©claration
+#Pour la base des co√ªts moyens le regroupement doit se faire de cette mani√®re. On doit garder la maille la plus fine.
 data_claim0[which(data_claim0$id_client == "A00044168"),]
-#### on peut le vÈrifier ici :
+
+#V√©rification
 nrow(count_(data_claim0, vars = c("id_client","id_vehicle","id_claim"))) == nrow(data_claim0)
 nrow(count_(data_claim0, vars = c("id_client","id_vehicle")))
 
 head(data_prospect0)
 summary(data_claim0)
 
+#---------------------------------------------------------------------------------------------------------------------------------------------------
+#
+#															Construction des bases (fr√©quence et co√ªt)
+#
+#---------------------------------------------------------------------------------------------------------------------------------------------------
 
-
-########## construction des base d'Ètude
-
-## base pour Ètude frequence
+#Base fr√©quence
 
 a1 = data_claim0 %>% 
   group_by(id_client, id_vehicle) %>% 
@@ -157,10 +166,12 @@ base_freq = merge(x = data_prospect0,
                   by.x = c("id_client","id_vehicle"),
                   by.y = c("id_client","id_vehicle"),
                   all.x = T )
+
 base_freq$freq[ is.na(base_freq$freq)] = 0
 
 
-## base pour le cout moyen
+#Base co√ªt moyen
+
 a2 = data_claim0 %>% 
   group_by(id_client, id_vehicle, id_claim) %>% 
   summarise(cout = mean(claim_amount))
@@ -177,13 +188,16 @@ base_cout = merge(x = a3,
                   by.y = c("id_client","id_vehicle"),
                   all.x = T)
 
-
-#################### statistique descriptives
+#---------------------------------------------------------------------------------------------------------------------------------------------------
+#
+#															Construction des bases (fr√©quence et co√ªt)
+#
+#---------------------------------------------------------------------------------------------------------------------------------------------------
 
 str(base_freq)
 
-## certaines var quali ont trop de modal pour graphique
-### pol_insee_code, vh_make, vh_model, 
+#Certaines variables qualitatives ont trop de modalit√©s pour √™tre repr√©sent√©es.
+# pol_insee_code, vh_make, vh_model, 
 mean_sd_by_modal(data = base_freq, var_y = "freq", var_x = "pol_coverage")
 mean_sd_by_modal(data = base_freq, var_y = "freq", var_x = "pol_pay_freq")
 mean_sd_by_modal(data = base_freq, var_y = "freq", var_x = "pol_payd")
@@ -193,8 +207,12 @@ mean_sd_by_modal(data = base_freq, var_y = "freq", var_x = "drv_sex1")
 mean_sd_by_modal(data = base_freq, var_y = "freq", var_x = "drv_sex2")
 mean_sd_by_modal(data = base_freq, var_y = "freq", var_x = "vh_fuel")
 mean_sd_by_modal(data = base_freq, var_y = "freq", var_x = "vh_type")
+#Proposition pour les variables ayant trop de modalit√©s
+#Pour pol_insee on fait des d√©partements
+mean_sd_by_modal(data = data.frame(freq=base_freq$freq, departement=substr(base_freq$pol_insee_code,1,2)), var_y = "freq", var_x = "departement")
+#R√©sultat pas top, difficile √† exploiter surtout dans un GLM
 
-## 
+#Quelques r√©gressions pour voir l'influence des variables quantitatives sur la cible 
 scatter_plot_int(data = base_freq, var_y = "freq", var_x = "pol_duration")
 scatter_plot_int(data = base_freq, var_y = "freq", var_x = "pol_sit_duration")
 scatter_plot_int(data = base_freq, var_y = "freq", var_x = "drv_age1")
@@ -212,7 +230,29 @@ scatter_plot_int(data = base_freq, var_y = "freq", var_x = "vh_value")
 scatter_plot_int(data = base_freq, var_y = "freq", var_x = "vh_weight")
 
 
+#---------------------------------------------------------------------------------------------------------------------------------------------------
+#
+#															Analyse en composantes principales
+#
+#---------------------------------------------------------------------------------------------------------------------------------------------------
 
+num<-which(sapply(base_freq[1,],is.numeric))
 
+#Il reste un NA
+which(is.na(base_freq),arr.ind = TRUE)
 
+base_freq[840,20]<-0
 
+library(ade4)
+
+#Je retiens 4 axes principaux
+acp<-dudi.pca(base_freq[,num], center = TRUE, scale = TRUE)
+
+#Pourcentages de variance cumul√©e
+cumsum(acp$eig/sum(acp$eig)*100)
+
+#Repr√©sentation des individus (pas tr√®s utile ici)
+plot(acp$li[,1],acp$li[,2])
+
+#Repr√©sentation des variables
+s.corcircle(acp$co,xax=1,yax=2)
