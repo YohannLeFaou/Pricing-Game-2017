@@ -145,7 +145,7 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
 #
 #---------------------------------------------------------------------------------------------------------------------------------------------------
 
-#### chargement des packages n�cessaires
+#### chargement des packages n?cessaires
 
 wants <- c("ggplot2", # pour faire des graphiques plus jolies qu'avec les fonctions de base
            "dplyr",
@@ -354,9 +354,87 @@ base_cout = merge(x = a2,
                   by.y = c("id_client","id_vehicle"),
                   all.x = T)
 
-
 # save(train_freq, file = "train_freq.RData")
 # save(base_cout, file = "base_cout.RData")
+
+#Pour ces 5 premières variables je n'ai pas trouvé de seuil intéressant (elle sont donc coupées arbitrairement en 6)
+
+data_prospect$pol_bonus_quali_cout = 
+  cut(data_prospect$pol_bonus, breaks = 6,include.lowest = F, right = F, ordered_result = T)
+
+data_prospect$pol_duration_quali_cout = 
+  cut(data_prospect$pol_duration, breaks = 6,include.lowest = F, right = F, ordered_result = T)
+
+data_prospect$pol_sit_duration_quali_cout = 
+  cut(data_prospect$pol_sit_duration, breaks = 6,include.lowest = F, 
+      right = F, ordered_result = T, labels = c("1","2","3","4","5","[6,Inf)"))
+
+data_prospect$drv_age1_quali_cout =
+  cut(data_prospect$drv_age1, breaks = 6,include.lowest = F, right = F, ordered_result = T)
+
+data_prospect$drv_age2_quali_cout =
+  cut(data_prospect$drv_age2, breaks = 6,include.lowest = F, right = F, ordered_result = T)
+
+data_prospect$drv_age_lic1_quali_cout =
+  cut(data_prospect$drv_age_lic1, breaks = 6,include.lowest = F, right = F, ordered_result = T)
+
+#Des variabes que j'ai découpé
+
+data_prospect$vh_age_quali_cout = 
+  cut(data_prospect$vh_age, breaks = c(1,5,seq(6,15,by=2),Inf),include.lowest = F, right = F, ordered_result = T)
+
+data_prospect$vh_cyl_quali_cout =
+  cut(data_prospect$vh_cyl, breaks = c(0,1000,1500,1700,2000,2200,3000,Inf),
+      include.lowest = F, right = F, ordered_result = T, dig.lab = 4)
+
+data_prospect$vh_din_quali_cout = 
+  cut(data_prospect$vh_din, breaks = c(0,25,30,75,100,150,200,300,Inf),include.lowest = F, 
+      right = F, ordered_result = T)
+
+data_prospect$vh_sale_begin_quali_cout = 
+  cut(data_prospect$vh_sale_begin, breaks = c(0,8,10,12,14,16,18,20,Inf),include.lowest = F, right = F, ordered_result = T)
+
+data_prospect$vh_sale_end_quali_cout = 
+  cut(data_prospect$vh_sale_end, breaks = c(0,8,10,12,14,16,18,20,Inf),include.lowest = F, right = F, ordered_result = T)
+
+data_prospect$vh_speed_quali_cout = 
+  cut(data_prospect$vh_speed, breaks = c(0,100,150,175,200,250,Inf),include.lowest = F, right = F, ordered_result = T)
+
+data_prospect$vh_value_quali_cout =
+  cut(data_prospect$vh_value, breaks = c(0,20000,40000,50000,Inf),include.lowest = F,dig.lab = 5,
+      right = F, ordered_result = T)
+
+#Je n'ai pas trouvé non plus pour la dernière variable
+
+data_prospect$vh_weight_quali_cout =
+  cut(data_prospect$vh_weight, breaks = 6,include.lowest = F,dig.lab = 4, 
+      right = F, ordered_result = T)
+
+train_cout = merge(x = data_prospect[which(data_prospect$id_year == "Year 0"),],
+                   y = a2,
+                   by.x = c("id_client","id_vehicle"),
+                   by.y = c("id_client","id_vehicle"),
+                   all.x = T )
+
+train_cout$cout[ is.na(train_cout$cout)] = 0
+
+
+x_var_quali_cout = c("pol_coverage", "pol_payd", "pol_usage", "drv_drv2",
+                     "drv_sex1", "drv_sex2", "vh_fuel", "vh_type", "pol_duration_quali_cout",
+                     "pol_sit_duration_quali_cout","pol_bonus_quali_cout",
+                     "drv_age1_quali_cout", 
+                     "drv_age2_quali_cout", "drv_age_lic1_quali_cout", 
+                     "vh_age_quali_cout", "vh_cyl_quali_cout", "vh_din_quali_cout",
+                     "vh_sale_begin_quali_cout", "vh_sale_end_quali_cout",
+                     "vh_speed_quali_cout", "vh_value_quali_cout", "vh_weight_quali_cout", "region")
+
+b_cout = dummyVars(formula = as.formula( paste0("~", paste0(x_var_quali_cout , collapse = " + ") )), 
+              data = train_cout[,x_var_quali_cout])
+
+dummy_data_cout = predict(b_cout, newdata = train_cout[,x_var_quali_cout])
+x_var_quali_cout_dummy = colnames(dummy_data_cout)
+
+train_cout = cbind(train_cout, dummy_data_cout)
 
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -437,3 +515,127 @@ plot(acp$li[,1],acp$li[,2])
 
 #Représentation des variables
 s.corcircle(acp$co,xax=1,yax=2)
+
+
+#---------------------------------------------------------------------------------------------------------------------------------------------------
+#
+#															Découpage des variables cout
+#
+#---------------------------------------------------------------------------------------------------------------------------------------------------
+
+scatter_plot = function(var_y, var_x, data, vec_y_lim){
+  
+  if(missing(vec_y_lim))
+  {
+    plot2 = ggplot(data = data, aes_string(x = var_x, y = var_y)) +
+      geom_point(alpha = 0.3, colour = "blue") +
+      geom_smooth(colour = "red") +
+      theme_bw() +
+      theme(text = element_text(size = 20)) +
+      ggtitle(paste0("Influence de la variable ",var_x, " sur ",var_y))
+  }
+  else
+  {
+    plot2 = ggplot(data = data, aes_string(x = var_x, y = var_y)) +
+      geom_point(alpha = 0.3, colour = "blue") +
+      ylim(vec_y_lim[1],vec_y_lim[2]) +
+      geom_smooth(colour = "red") +
+      theme_bw() +
+      theme(text = element_text(size = 20)) +
+      ggtitle(paste0("Influence de la variable ",var_x, " sur ",var_y))
+  }
+  
+  # var_x <- "pol_bonus"
+  # var_y <- "cout"
+  # data <- base_cout
+  
+  plot1 = ggplot( aes_string(x = var_x) , 
+                  data = data[!is.na(data[,var_y]) ,]) + # & (data[,var_y] > 0)
+    geom_bar(aes(y = (..count..)/sum(..count..))) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, size =10)) +
+    #scale_y_continuous(labels = scales::percent) +
+    theme(text = element_text(size = 17)) +
+    ylab(paste0("Distribution ",var_x)) +
+    xlab("")
+  
+  multiplot(plot2, plot1, cols = 1)
+}
+
+var_num<-colnames(base_cout)[sapply(base_cout[1,],is.numeric)]
+var_num<-var_num[-grep("cout",var_num)]
+var_num<-var_num[-grep("freq",var_num)]
+
+#Variables pol_bonus
+scatter_plot("cout","pol_bonus",base_cout,c(0,3000)) 
+#Rien de vraiment significatif. Pourtant, je m'attends à trouver une relation du type bonus=0.5 gros sinistres et plus on se rapproche de 1.5 moins les sinistres
+#sont importants. Un assuré avec un bon bonus n'a pas intérêt à le perdre, il ne rapporte donc que les sinistres graves.
+
+#Je ne vois pas où couper
+
+#Variables pol_bonus
+scatter_plot("cout","pol_duration",base_cout,c(0,2500)) 
+#Difficile à dire. Je couperais régulièrement.
+
+#Variables pol_sit_duration
+scatter_plot("cout","pol_sit_duration",base_cout,c(0,4000)) 
+#Difficile à dire. Je couperais régulièrement.
+
+#Variables drv_age1
+scatter_plot("cout","drv_age1",base_cout,c(0,5000)) 
+
+#Variables drv_age2
+scatter_plot("cout","drv_age2",base_cout,c(0,2500)) 
+
+#Variables drv_age_lic1
+scatter_plot("cout","drv_age_lic1",base_cout,c(0,2500)) 
+#Enfin ! une pente
+
+#Variables drv_age_lic2
+scatter_plot("cout","drv_age_lic2",base_cout,c(0,2500)) 
+
+#Variables vh_age
+scatter_plot("cout","vh_age",base_cout,c(0,5000)) 
+#Enfin une variables d'intérêt !
+
+#[0,8[ de 2 en 2 jusqu'à 15 et ensuite le reste
+
+#Variables vh_cyl
+scatter_plot("cout","vh_cyl",base_cout,c(0,3000)) 
+
+# 0,1000 puis 1000,1500 puis 1500,1700 puis 1700,2000 puis 2000, 2200 puis 2200 3000 puis le reste
+
+#Variables vh_din
+scatter_plot("cout","vh_din",base_cout,c(0,5000)) 
+
+#0,25,50,75,100,150,200,300 lereste
+
+#Variables vh_sale_begin
+scatter_plot("cout","vh_sale_begin",base_cout,c(0,5000)) 
+
+#0,8,10,12,14,16,18 20 le reste
+
+#Variables vh_sale_end
+scatter_plot("cout","vh_sale_end",base_cout,c(0,5000)) 
+
+#idem
+
+#Variables vh_speed
+scatter_plot("cout","vh_speed",base_cout,c(0,5000)) 
+
+#O,100,150,175,200,250 le reste
+
+#Variables vh_value
+scatter_plot("cout","vh_value",base_cout,c(0,4000))
+
+#0,2000,4000,5000,le reste
+
+#Variables vh_weight
+scatter_plot("cout","vh_weight",base_cout,c(0,4000)) 
+
+#Couper régulièrement
+
+#Bonus la heatmap (pas évident à manipuler mais des résltats intéressants)
+
+heatmap(prop.table(table(cut(cout, breaks = c(seq(0,1000,by=500),seq(2000,8000,by=1000),Inf)),base_cout$vh_age)))
+
+#Ce qui est intéressant c'est à la fois l'aspect graphique et la classification hiérarchique qui se trouve en haut
