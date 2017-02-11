@@ -148,7 +148,8 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
 #### chargement des packages nécessaires
 
 wants <- c("ggplot2", # pour faire des graphiques plus jolies qu'avec les fonctions de base
-           "dplyr"
+           "dplyr",
+           "caret"
 )
 has   <- wants %in% rownames(installed.packages())
 if(any(!has)) install.packages(wants[!has])
@@ -270,6 +271,9 @@ data_prospect$vh_value_quali_freq =
 data_prospect$vh_weight_quali_freq =
   cut(data_prospect$vh_weight, breaks = c(0,800,1000,1300,1500,1800,Inf),include.lowest = F,dig.lab = 4, 
       right = F, ordered_result = T)
+data_prospect$pol_bonus_quali_freq =
+  cut(data_prospect$pol_bonus, breaks = c(0.5,0.51,Inf),include.lowest = F, 
+      right = F, ordered_result = T)
 
 d = data.frame(count_(x = data_prospect0, vars = "vh_make"))
 d = d[order(d$n, decreasing = T),]
@@ -284,7 +288,6 @@ data_prospect = merge(x = data_prospect,
                       by.y = "vh_make",
                       all.x = T)
 
-
 #Base frequence
 a1 = data_claim0 %>% 
   group_by(id_client, id_vehicle) %>% 
@@ -296,10 +299,41 @@ train_freq = merge(x = data_prospect[which(data_prospect$id_year == "Year 0"),],
                   by.x = c("id_client","id_vehicle"),
                   by.y = c("id_client","id_vehicle"),
                   all.x = T )
-
 train_freq$freq[ is.na(train_freq$freq)] = 0
 
 
+x_var_RF1 = c("pol_bonus", 
+              "pol_coverage","pol_duration","pol_sit_duration","pol_pay_freq",
+              "pol_payd", "pol_usage", "drv_drv2", "drv_age1", "drv_age2",
+              "drv_sex1",
+              "drv_sex2", "drv_age_lic1", "drv_age_lic2", "vh_age", "vh_cyl",
+              "vh_din", "vh_fuel", "vh_sale_begin", "vh_sale_end", "vh_speed",
+              "vh_type", "vh_value", "vh_weight"
+              , "region", "vh_make_bis"
+              )
+
+x_var_quali_freq = c("pol_coverage", "pol_pay_freq", "pol_payd", "pol_usage", "drv_drv2",
+                     "drv_sex1", "drv_sex2", "vh_fuel", "vh_type", "pol_duration_quali_freq",
+                     "pol_sit_duration_quali_freq","pol_bonus_quali_freq",
+                     "drv_age1_quali_freq", 
+                     "drv_age2_quali_freq", "drv_age_lic1_quali_freq", 
+                     "vh_age_quali_freq", "vh_cyl_quali_freq", "vh_din_quali_freq",
+                     "vh_sale_begin_quali_freq", "vh_sale_end_quali_freq",
+                     "vh_speed_quali_freq", "vh_value_quali_freq", "vh_weight_quali_freq",
+                     "vh_make_bis", "region")
+
+b = dummyVars(formula = as.formula( paste0("~", paste0(x_var_quali_freq , collapse = " + ") )), 
+              data = train_freq[,x_var_quali_freq])
+dummy_data_freq = predict(b, newdata = train_freq[,x_var_quali_freq])
+x_var_quali_freq_dummy = colnames(dummy_data_freq)
+
+train_freq = cbind(train_freq, dummy_data_freq)
+
+
+
+
+
+str(train_freq[,x_var_quali_freq])
 #Base cout moyen
 
 a2 = data_claim0 %>% 
@@ -373,6 +407,9 @@ scatter_plot_int(data = train_freq, var_y = "freq", var_x = "vh_weight", y_bin =
 
 
 
+scatter_plot(var_y = "freq", var_x = "pol_bonus", data = train_freq)
+mean_sd_by_modal(data = train_freq, var_y = "freq", var_x = "pol_bonus")
+scatter_plot_int( data = train_freq, var_y = "freq", var_x = "pol_bonus")
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------
 #

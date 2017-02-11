@@ -1,3 +1,45 @@
+####### fct arthur
+
+
+Score_GLM<-function(dataX,dataY,controle_methode,controle_nombre_fold,controle_nombre_repetition=1,fit_famille,fit_metrique = "RMSE",seed=2017){
+  #dataX : Les prédicteurs
+  #dataY : La variables Cible
+  #controle_methode : Paramètre de contrôle qui peut prendre les valeurs "cv","repeatedcv","LOOCV"
+  #controle_nombre_fold : Paramètre de contrôle qui gère le nombre de fold (segments) utilisés pour la k-fold cross-validation
+  #controle_nombre_repetition : Paramètre de contrôle qui gère le nombre répétition de la k-fold cross-validation (fixé à 1 par défaut)
+  #fit_famille : Paramètre de la fonction glm() peut prendre toutes les valeurs que propose la fonction glm()
+  #fit_metrique : Paramètre qui gère la métrique d'évaluation fixé à RMSE pour évaluer une régression. Si classification rentre "Accuracy"
+  #seed : La graine pour la reproductibilité des résultats (fixée à 2017 par défaut)
+  
+  set.seed(seed)
+  
+  inTraining <- createDataPartition(dataY, p = .75, list = FALSE)
+  training <- dataX[ inTraining,]
+  testing  <- dataX[-inTraining,]
+  Y_training <- dataY[ inTraining]
+  Y_testing <- dataY[-inTraining]
+  
+  fitControl <- trainControl(# 10-fold CV
+    method = controle_methode,
+    number = controle_nombre_fold,
+    # On répète 10 fois la 10-fold CV
+    repeats = controle_nombre_repetition)
+  
+  set.seed(seed)
+  
+  GLM.fit <- train(training,Y_training,
+                   method = "glm",
+                   family = fit_famille,
+                   metric = fit_metrique,
+                   trControl = fitControl)
+  
+  res<-data.frame(Fold = as.character(GLM.fit$resample$Resample),
+                  RMSE = as.numeric(GLM.fit$resample$RMSE),
+                  Rsquared = as.numeric(GLM.fit$resample$Rsquared))
+  return(res)
+}
+
+
 
 #### chargement des packages nécessaires
 
@@ -21,24 +63,25 @@ load("train_freq.RData")
 ## dans train_freq il y a une ligne qui comporte une valeur NA
 # load("base_cout.RData")
 
-var_forest = c("")
-
-
-
-apply(X = train_freq[,c("freq",variable1)], MARGIN = 2, FUN = function(x){sum(is.na(x))})
-
-variable1 = setdiff(colnames(train_freq), c("id_client",
-                                           "id_vehicle",
-                                           "id_policy",
-                                           "id_year",
-                                           "freq","pol_insee_code", "vh_make",
-                                           "vh_model")
-                    )
-
-d = na.omit(train_freq[,c("freq",variable1, var_insee)])
-selected_lines = sample(x = 1:nrow(d), size = 50000)
-
+## RF avec les variable quanti
+selected_lines = sample(x = 1:nrow(train_freq), size = 50000)
 options(mc.cores=detectCores()-1, rf.cores = detectCores()-1)
+
+t1 = Sys.time()
+rf1 = rfsrc( formula = freq ~ . ,
+             data = train_freq[selected_lines,c("freq",x_var_RF1)],
+             ntree = 5, 
+             nodedepth = 6,
+             nsplit = 6,
+             forest = T,
+             importance = "permute")
+Sys.time() - t1
+
+rf1$importance
+plot_rfSRC_importance(rfSRC = rf1, nb_variable = 100)
+
+
+###################################
 
 res_calibre = calibre_rf(data = d[selected_lines,],
            var_y = "freq",
@@ -49,18 +92,29 @@ res_calibre = calibre_rf(data = d[selected_lines,],
 
 
 
-rf1 = rfsrc( formula = freq ~ . , 
-             data = d[selected_lines,],
+
+################################ test sur les variables dummies
+
+### RF
+
+t1 = Sys.time()
+rf1 = rfsrc( formula = freq ~ . ,
+             data = train_freq[selected_lines,c("freq",x_var_quali_freq_dummy)],
              ntree = 100, 
              nodedepth = 6,
+             nsplit = 6,
              forest = T,
-             importance = "permute")
+             seed = 2017)
+Sys.time() - t1
 
-rf1$importance
+### GLM
 
-plot_rfSRC_importance(rfSRC = rf1, nb_variable = 100)
-plot_error_rfSRC(rf1) # pbm avec cette fonction, ajouter argument tree.err = T
-# je pense
-
-
-
+Scores<-Score_GLM(dataX = train_freq[,x_var_quali_freq_dummy],
+                  dataY = train_freq$freq,
+                  controle_methode = "repeatedcv",
+                  controle_nombre_fold = 2,
+                  controle_nombre_repetition = 10,
+                  fit_famille = "gaussian",
+                  fit_metrique = "RMSE",
+                  seed=2017)
+Scores
