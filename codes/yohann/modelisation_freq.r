@@ -1,3 +1,4 @@
+
 ####### fct arthur
 Score_GLM<-function(dataX,dataY,controle_methode,controle_nombre_fold,controle_nombre_repetition=1,fit_famille,fit_metrique = "RMSE",seed=2017){
   #dataX : Les prédicteurs
@@ -43,29 +44,27 @@ Score_GLM<-function(dataX,dataY,controle_methode,controle_nombre_fold,controle_n
   return(GLM.fit$resample)
 }
 
-stepwise_GLM = function(data, variable_importance, var_y, controle_methode,
+stepwise_GLM = function(data, variable_decrease_imp_order, var_y, controle_methode,
                         controle_nombre_fold, controle_nombre_repetition, fit_famille, fit_metrique){
   
   cat("", file = "computation_progress.txt")
-  
-  variable_importance = sort(variable_importance, decreasing = T)
   
   n_cores <- 4
   cl<-makeCluster(n_cores)
   registerDoParallel(cl)
   
-  tab_results = foreach(i=1:length(variable_importance), 
+  tab_results = foreach(i=1:length(variable_decrease_imp_order), 
                         .combine = rbind,
                         .packages = c("caret"),
                         .export = "Score_GLM",
                         .verbose = TRUE) %dopar% {
                           
-                          cat(paste0(i," in ", length(variable_importance), "\n"),
+                          cat(paste0(i," in ", length(variable_decrease_imp_order), "\n"),
                               file = "computation_progress.txt",
                               append = TRUE)
                           
                           Score_GLM(
-                            dataX = data.frame(data[,names(variable_importance)[1:i]]),
+                            dataX = data.frame(data[,variable_decrease_imp_order[1:i]]),
                             dataY = data[,var_y],
                             controle_methode = controle_methode,
                             controle_nombre_fold = controle_nombre_fold,
@@ -76,8 +75,8 @@ stepwise_GLM = function(data, variable_importance, var_y, controle_methode,
                           
                         }
   stopCluster(cl)
-  tab_results$n_vars = rep(1:length(variable_importance), 
-                           times = rep(controle_nombre_fold * controle_nombre_repetition,length(variable_importance)))
+  tab_results$n_vars = rep(1:length(variable_decrease_imp_order), 
+                           times = rep(controle_nombre_fold * controle_nombre_repetition,length(variable_decrease_imp_order)))
   return(tab_results)
 }
 
@@ -86,7 +85,8 @@ stepwise_GLM = function(data, variable_importance, var_y, controle_methode,
 wants <- c("ggplot2", # pour faire des graphiques plus jolies qu'avec les fonctions de base
            "randomForestSRC", # foret alatoire
            "reshape", # pour utiliser la fonction "melt"
-           "doParallel"
+           "doParallel",
+           "glmnet"
 )
 has   <- wants %in% rownames(installed.packages())
 if(any(!has)) install.packages(wants[!has])
@@ -135,9 +135,9 @@ res_calibre = calibre_rf(data = train_freq[selected_lines,c("freq",
                          vect_nodesize = c(5, 10, 20, 30, 50, 100, 200, 400, 1000, 2000, 3000, 5000))
 
 
-################################ test sur les variables dummies
+################################ selection de variables sur les variables dummies
 
-### RF
+#### avec une RF
 
 t1 = Sys.time()
 rf1 = rfsrc( formula = freq ~ . ,
@@ -171,6 +171,32 @@ rf2$importance
 
 #save(rf2 , file = "resultats 2 sur variables binaires/objetRF.RData")
 
+##### avec le LASSO
+
+## glmnet package
+fit = glmnet(x = as.matrix(train_freq[,setdiff(x_var_quali_freq_dummy,
+                                    c(modes_quali_var, var_dummy_delete) )]),
+             y = train_freq$freq, nlambda = 10000)
+length(unique(fit$df)) == length(setdiff(x_var_quali_freq_dummy,
+                                 c(modes_quali_var, var_dummy_delete) ))
+
+fit$
+a = cv.glmnet(x = as.matrix(train_freq[,setdiff(x_var_quali_freq_dummy,
+                                                c(modes_quali_var, var_dummy_delete) )]),
+              y = train_freq$freq)
+plot(a)
+summary(a)
+log(a$lambda.1se)
+### lars package
+b = lars(x = as.matrix(train_freq[,setdiff(x_var_quali_freq_dummy,
+                                           c(modes_quali_var, var_dummy_delete) )]),
+         y = train_freq$freq)
+
+c = cv.lars(x = as.matrix(train_freq[,setdiff(x_var_quali_freq_dummy,
+                                          c(modes_quali_var, var_dummy_delete) )]),
+        y = train_freq$freq, )
+
+
 ### GLM
 
 r = glm(formula = freq ~ ., 
@@ -178,7 +204,6 @@ r = glm(formula = freq ~ .,
                              setdiff(x_var_quali_freq_dummy,
                                      c(modes_quali_var, var_dummy_delete) ))],
         family = "gaussian")
-
 
 
 Scores<-Score_GLM(dataX = train_freq[,setdiff(x_var_quali_freq_dummy,
@@ -192,8 +217,11 @@ Scores<-Score_GLM(dataX = train_freq[,setdiff(x_var_quali_freq_dummy,
                   seed=2017)
 Scores
 
+
+
 ### GLM : remontee de la variable importance
 
+## variable importance de la RF
 res2 = stepwise_GLM(data = train_freq,
              variable_importance = rf2$importance,
              var_y = "freq",
@@ -207,17 +235,54 @@ res_agrege = res2 %>% group_by(n_vars) %>%
   summarise(meanR2 = mean(Rsquared), sdR2 = sd(Rsquared))
 data.frame(res_agrege)
 
+plot(x = res_agrege$n_vars, y = res_agrege$meanR2, type = "l")
+lines(x = res_agrege$n_vars, y = res_agrege$meanR2 + res_agrege$sdR2, type = "l", col = "red")
+lines(x = res_agrege$n_vars, y = res_agrege$meanR2 - res_agrege$sdR2, type = "l", col = "red")
+nb_optimal = 86
+
+### classement du lasso
+
+res3 = stepwise_GLM(data = train_freq,
+                    variable_decrease_imp_order = do.call( "c" , lapply(b$actions , FUN = function(x){(names(x))} )),
+                    var_y = "freq",
+                    controle_methode = "repeatedcv",
+                    controle_nombre_fold = 2,
+                    controle_nombre_repetition = 2,
+                    fit_famille = "gaussian",
+                    fit_metrique = "RMSE")
+
+res_agrege3 = res3 %>% group_by(n_vars) %>% 
+  summarise(meanR2 = mean(Rsquared), sdR2 = sd(Rsquared))
+data.frame(res_agrege3)
+
+plot(x = res_agrege3$n_vars, y = res_agrege3$meanR2, type = "l")
+lines(x = res_agrege3$n_vars, y = res_agrege3$meanR2 + res_agrege3$sdR2, type = "l", col = "red")
+lines(x = res_agrege3$n_vars, y = res_agrege3$meanR2 - res_agrege3$sdR2, type = "l", col = "red")
+
+
 #### GLM final avec les variables selectionnees
 
-variables_finales = sort(rf2$importance , decreasing = T)[1:nb_optimal]
+variables_finales_RF = names(sort(rf2$importance , decreasing = T)[1:nb_optimal])
 
 
 glm_final = glm(formula = freq ~ ., 
-                data = train_freq[,c("freq", variables_finales)],
+                data = train_freq[,c("freq", variables_finales_RF)],
                 family = "gaussian")
+summary(glm_final)
+
+
+variables_finales_lasso = do.call( "c" , lapply(b$actions , FUN = function(x){(names(x))} ))[1:20]
+glm_final_lasso = glm(formula = freq ~ ., 
+                data = train_freq[,c("freq", variables_finales_lasso)],
+                family = "gaussian")
+summary(glm_final_lasso)
+
+
+############ correlations entre les variables quali
+table_correlation = cor(train_freq[,setdiff(x_var_quali_freq_dummy,
+                        c(modes_quali_var, var_dummy_delete) )])
+write.csv2(table_correlation, file = "table_correlations.csv2")
 
 ## représentation de l'influence des variables dans le GLM
-
-
 
 
