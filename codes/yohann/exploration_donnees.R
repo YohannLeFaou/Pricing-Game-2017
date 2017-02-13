@@ -7,7 +7,7 @@
 
 
 mean_sd_by_modal = function(data, var_y, var_x, scale_y = 0){
-### fonction qui permet de representer pour une variable quali, la moyenne et l'écart type par modalité, ainsi que la
+### fonction qui permet de representer pour une variable quali, la moyenne et l'Ã©cart type par modalitÃ©, ainsi que la
 ### la distribution de var_x
 # data : data.frame ; contient var_y et var_x
 # var_y : string ; nom de la variable Y
@@ -300,7 +300,7 @@ b = dummyVars(formula = as.formula( paste0("~", paste0(x_var_quali_freq , collap
 dummy_data_freq = predict(b, newdata = train_freq[,x_var_quali_freq])
 x_var_quali_freq_dummy = colnames(dummy_data_freq)
 
-### certaines variables dummy sont a supprimer, sinon certaines variables sont li�es
+### certaines variables dummy sont a supprimer, sinon certaines variables sont liées
 ### (c'est a cause des variables sur le driver 2 -> valeurs manquantes)
 var_dummy_delete = c("drv_sex2.autre", "drv_age2_quali_freq.[0,1)")
 
@@ -343,30 +343,30 @@ base_cout = merge(x = a2,
                   by.y = c("id_client","id_vehicle"),
                   all.x = T)
 
-
-
 # save(base_cout, file = "base_cout.RData")
 
+#Pour ces 5 premiÃ¨res variables je n'ai pas trouvÃ© de seuil intÃ©ressant (elle sont donc coupÃ©es arbitrairement en 6)
 
-#Pour ces 5 premières variables je n'ai pas trouvé de seuil intéressant
+data_prospect$pol_bonus_quali_cout = 
+  cut(data_prospect$pol_bonus, breaks = 6,include.lowest = F, right = F, ordered_result = T)
 
 data_prospect$pol_duration_quali_cout = 
-  cut(data_prospect$pol_duration, breaks = c(0,30,Inf),include.lowest = F, right = F, ordered_result = T)
+  cut(data_prospect$pol_duration, breaks = 6,include.lowest = F, right = F, ordered_result = T)
 
 data_prospect$pol_sit_duration_quali_cout = 
-  cut(data_prospect$pol_sit_duration, breaks = c(1,2,3,4,5,6,Inf),include.lowest = F, 
+  cut(data_prospect$pol_sit_duration, breaks = 6,include.lowest = F, 
       right = F, ordered_result = T, labels = c("1","2","3","4","5","[6,Inf)"))
 
 data_prospect$drv_age1_quali_cout =
-  cut(data_prospect$drv_age1, breaks = c(0,45,75,Inf),include.lowest = F, right = F, ordered_result = T)
+  cut(data_prospect$drv_age1, breaks = 6,include.lowest = F, right = F, ordered_result = T)
 
 data_prospect$drv_age2_quali_cout =
-  cut(data_prospect$drv_age2, breaks = c(0,1,28,75,Inf),include.lowest = F, right = F, ordered_result = T)
+  cut(data_prospect$drv_age2, breaks = 6,include.lowest = F, right = F, ordered_result = T)
 
 data_prospect$drv_age_lic1_quali_cout =
-  cut(data_prospect$drv_age_lic1, breaks = c(0,5,15,30,55,Inf),include.lowest = F, right = F, ordered_result = T)
+  cut(data_prospect$drv_age_lic1, breaks = 6,include.lowest = F, right = F, ordered_result = T)
 
-#Des variabes que j'ai découpé
+#Des variabes que j'ai dÃ©coupÃ©
 
 data_prospect$vh_age_quali_cout = 
   cut(data_prospect$vh_age, breaks = c(1,5,seq(6,15,by=2),Inf),include.lowest = F, right = F, ordered_result = T)
@@ -392,7 +392,84 @@ data_prospect$vh_value_quali_cout =
   cut(data_prospect$vh_value, breaks = c(0,20000,40000,50000,Inf),include.lowest = F,dig.lab = 5,
       right = F, ordered_result = T)
 
-#Je n'ai pas trouvé non plus pour la dernière variable
+#Je n'ai pas trouvÃ© non plus pour la derniÃ¨re variable
+
+data_prospect$vh_weight_quali_cout =
+  cut(data_prospect$vh_weight, breaks = 6,include.lowest = F,dig.lab = 4, 
+      right = F, ordered_result = T)
+
+train_cout = merge(x = data_prospect[which(data_prospect$id_year == "Year 0"),],
+                   y = a2,
+                   by.x = c("id_client","id_vehicle"),
+                   by.y = c("id_client","id_vehicle"),
+                   all.x = T )
+
+train_cout$cout[ is.na(train_cout$cout)] = 0
+
+
+x_var_quali_cout = c("pol_coverage", "pol_payd", "pol_usage", "drv_drv2",
+                     "drv_sex1", "drv_sex2", "vh_fuel", "vh_type", "pol_duration_quali_cout",
+                     "pol_sit_duration_quali_cout","pol_bonus_quali_cout",
+                     "drv_age1_quali_cout", 
+                     "drv_age2_quali_cout", "drv_age_lic1_quali_cout", 
+                     "vh_age_quali_cout", "vh_cyl_quali_cout", "vh_din_quali_cout",
+                     "vh_sale_begin_quali_cout", "vh_sale_end_quali_cout",
+                     "vh_speed_quali_cout", "vh_value_quali_cout", "vh_weight_quali_cout", "region")
+
+b_cout = dummyVars(formula = as.formula( paste0("~", paste0(x_var_quali_cout , collapse = " + ") )), 
+              data = train_cout[,x_var_quali_cout])
+
+dummy_data_cout = predict(b_cout, newdata = train_cout[,x_var_quali_cout])
+x_var_quali_cout_dummy = colnames(dummy_data_cout)
+
+train_cout = cbind(train_cout, dummy_data_cout)
+
+
+#Pour ces 5 premiÃ¨res variables je n'ai pas trouvÃ© de seuil intÃ©ressant
+
+data_prospect$pol_duration_quali_cout = 
+  cut(data_prospect$pol_duration, breaks = c(0,30,Inf),include.lowest = F, right = F, ordered_result = T)
+
+data_prospect$pol_sit_duration_quali_cout = 
+  cut(data_prospect$pol_sit_duration, breaks = c(1,2,3,4,5,6,Inf),include.lowest = F, 
+      right = F, ordered_result = T, labels = c("1","2","3","4","5","[6,Inf)"))
+
+data_prospect$drv_age1_quali_cout =
+  cut(data_prospect$drv_age1, breaks = c(0,45,75,Inf),include.lowest = F, right = F, ordered_result = T)
+
+data_prospect$drv_age2_quali_cout =
+  cut(data_prospect$drv_age2, breaks = c(0,1,28,75,Inf),include.lowest = F, right = F, ordered_result = T)
+
+data_prospect$drv_age_lic1_quali_cout =
+  cut(data_prospect$drv_age_lic1, breaks = c(0,5,15,30,55,Inf),include.lowest = F, right = F, ordered_result = T)
+
+#Des variabes que j'ai dÃ©coupÃ©
+
+data_prospect$vh_age_quali_cout = 
+  cut(data_prospect$vh_age, breaks = c(1,5,seq(6,15,by=2),Inf),include.lowest = F, right = F, ordered_result = T)
+
+data_prospect$vh_cyl_quali_cout =
+  cut(data_prospect$vh_cyl, breaks = c(0,1000,1500,1700,2000,2200,3000,Inf),
+      include.lowest = F, right = F, ordered_result = T, dig.lab = 4)
+
+data_prospect$vh_din_quali_cout = 
+  cut(data_prospect$vh_din, breaks = c(0,25,30,75,100,150,200,300,Inf),include.lowest = F, 
+      right = F, ordered_result = T)
+
+data_prospect$vh_sale_begin_quali_cout = 
+  cut(data_prospect$vh_sale_begin, breaks = c(0,8,10,12,14,16,18,20,Inf),include.lowest = F, right = F, ordered_result = T)
+
+data_prospect$vh_sale_end_quali_cout = 
+  cut(data_prospect$vh_sale_end, breaks = c(0,8,10,12,14,16,18,20,Inf),include.lowest = F, right = F, ordered_result = T)
+
+data_prospect$vh_speed_quali_cout = 
+  cut(data_prospect$vh_speed, breaks = c(0,100,150,175,200,250,Inf),include.lowest = F, right = F, ordered_result = T)
+
+data_prospect$vh_value_quali_cout =
+  cut(data_prospect$vh_value, breaks = c(0,20000,40000,50000,Inf),include.lowest = F,dig.lab = 5,
+      right = F, ordered_result = T)
+
+#Je n'ai pas trouvÃ© non plus pour la derniÃ¨re variable
 
 data_prospect$vh_weight_quali_cout =
   cut(data_prospect$vh_weight, breaks = c(0,800,1000,1300,1500,1800,Inf),include.lowest = F,dig.lab = 4, 
@@ -460,12 +537,12 @@ mean_sd_by_modal(data = train_freq, var_y = "freq", var_x = "vh_weight_quali_fre
 
 
 
-#Représentation des variables
+#ReprÃ©sentation des variables
 s.corcircle(acp$co,xax=1,yax=2)
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------
 #
-#															Découpage des variables cout
+#															DÃ©coupage des variables cout
 #
 #---------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -513,18 +590,18 @@ var_num<-var_num[-grep("freq",var_num)]
 
 #Variables pol_bonus
 scatter_plot("cout","pol_bonus",base_cout,c(0,3000)) 
-#Rien de vraiment significatif. Pourtant, je m'attends à trouver une relation du type bonus=0.5 gros sinistres et plus on se rapproche de 1.5 moins les sinistres
-#sont importants. Un assuré avec un bon bonus n'a pas intérêt à le perdre, il ne rapporte donc que les sinistres graves.
+#Rien de vraiment significatif. Pourtant, je m'attends Ã  trouver une relation du type bonus=0.5 gros sinistres et plus on se rapproche de 1.5 moins les sinistres
+#sont importants. Un assurÃ© avec un bon bonus n'a pas intÃ©rÃªt Ã  le perdre, il ne rapporte donc que les sinistres graves.
 
-#Je ne vois pas où couper
+#Je ne vois pas oÃ¹ couper
 
 #Variables pol_bonus
 scatter_plot("cout","pol_duration",base_cout,c(0,2500)) 
-#Difficile à dire. Je couperais régulièrement.
+#Difficile Ã  dire. Je couperais rÃ©guliÃ¨rement.
 
 #Variables pol_sit_duration
 scatter_plot("cout","pol_sit_duration",base_cout,c(0,4000)) 
-#Difficile à dire. Je couperais régulièrement.
+#Difficile Ã  dire. Je couperais rÃ©guliÃ¨rement.
 
 #Variables drv_age1
 scatter_plot("cout","drv_age1",base_cout,c(0,5000)) 
@@ -541,9 +618,9 @@ scatter_plot("cout","drv_age_lic2",base_cout,c(0,2500))
 
 #Variables vh_age
 scatter_plot("cout","vh_age",base_cout,c(0,5000)) 
-#Enfin une variables d'intérêt !
+#Enfin une variables d'intÃ©rÃªt !
 
-#[0,8[ de 2 en 2 jusqu'à 15 et ensuite le reste
+#[0,8[ de 2 en 2 jusqu'Ã  15 et ensuite le reste
 
 #Variables vh_cyl
 scatter_plot("cout","vh_cyl",base_cout,c(0,3000)) 
@@ -578,11 +655,11 @@ scatter_plot("cout","vh_value",base_cout,c(0,4000))
 #Variables vh_weight
 scatter_plot("cout","vh_weight",base_cout,c(0,4000)) 
 
-#Couper régulièrement
+#Couper rÃ©guliÃ¨rement
 
-#Bonus la heatmap (pas évident à manipuler mais des résltats intéressants)
+#Bonus la heatmap (pas Ã©vident Ã  manipuler mais des rÃ©sltats intÃ©ressants)
 
 heatmap(prop.table(table(cut(cout, breaks = c(seq(0,1000,by=100),seq(2000,8000,by=1000),Inf)),base_cout$vh_age)))
 
-#Ce qui est intéressant c'est à la fois l'aspect graphique et la classification hiérarchique qui se trouve en haut
+#Ce qui est intÃ©ressant c'est Ã  la fois l'aspect graphique et la classification hiÃ©rarchique qui se trouve en haut
 
