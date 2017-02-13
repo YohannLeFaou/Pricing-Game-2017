@@ -173,20 +173,20 @@ rf2$importance
 
 ##### avec le LASSO
 
-## glmnet package
-fit = glmnet(x = as.matrix(train_freq[,setdiff(x_var_quali_freq_dummy,
-                                    c(modes_quali_var, var_dummy_delete) )]),
-             y = train_freq$freq, nlambda = 10000)
-length(unique(fit$df)) == length(setdiff(x_var_quali_freq_dummy,
-                                 c(modes_quali_var, var_dummy_delete) ))
-
-fit$
-a = cv.glmnet(x = as.matrix(train_freq[,setdiff(x_var_quali_freq_dummy,
-                                                c(modes_quali_var, var_dummy_delete) )]),
-              y = train_freq$freq)
-plot(a)
-summary(a)
-log(a$lambda.1se)
+# ## glmnet package
+# fit = glmnet(x = as.matrix(train_freq[,setdiff(x_var_quali_freq_dummy,
+#                                     c(modes_quali_var, var_dummy_delete) )]),
+#              y = train_freq$freq, nlambda = 10000)
+# length(unique(fit$df)) == length(setdiff(x_var_quali_freq_dummy,
+#                                  c(modes_quali_var, var_dummy_delete) ))
+# 
+# fit$
+# a = cv.glmnet(x = as.matrix(train_freq[,setdiff(x_var_quali_freq_dummy,
+#                                                 c(modes_quali_var, var_dummy_delete) )]),
+#               y = train_freq$freq)
+# plot(a)
+# summary(a)
+# log(a$lambda.1se)
 ### lars package
 b = lars(x = as.matrix(train_freq[,setdiff(x_var_quali_freq_dummy,
                                            c(modes_quali_var, var_dummy_delete) )]),
@@ -263,7 +263,6 @@ lines(x = res_agrege3$n_vars, y = res_agrege3$meanR2 - res_agrege3$sdR2, type = 
 #### GLM final avec les variables selectionnees
 
 variables_finales_RF = names(sort(rf2$importance , decreasing = T)[1:nb_optimal])
-
 
 glm_final = glm(formula = freq ~ ., 
                 data = train_freq[,c("freq", variables_finales_RF)],
