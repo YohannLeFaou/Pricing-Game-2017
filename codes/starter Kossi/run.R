@@ -4,13 +4,13 @@
 ###############################################################################
 
 
-
-setwd("C:/Users/BIGDATA/Documents/BIG DATA 2/Projets_Rstudio/PERSO/Tarif_Shiny") ## Chemin où se trouve le fichier décompressé
+## Chemin où se trouve le fichier décompressé
+setwd("Y:/Forsides France/06_Solo/Yohann LE FAOU/mission_forsides/pricing_game_2017/codes")
 
 if(!require(shiny)){
 	install.packages("shiny", dependencies = TRUE)
 	require(shiny)
 }
 
-runApp("Tarif_Shiny")
+runApp("starter Kossi")
 
