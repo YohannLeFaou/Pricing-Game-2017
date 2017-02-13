@@ -1,4 +1,7 @@
-.gitignore
-.Rproj*
-.Rhistory
-.RData
+*.Rproj.user/
+*.Rhistory
+*.RData
+*.Rproj
+*.db
+*.png
+*.pper
