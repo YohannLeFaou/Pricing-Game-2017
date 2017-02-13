@@ -21,9 +21,10 @@ Score_GLM<-function(dataX,dataY,controle_methode,controle_nombre_fold,controle_n
 
 set.seed(seed)
 
+
 inTraining <- createDataPartition(dataY, p = .75, list = FALSE)
-training <- dataX[ inTraining,]
-testing  <- dataX[-inTraining,]
+training <- data.frame(dataX[ inTraining,])
+testing  <- data.frame(dataX[-inTraining,])
 Y_training <- dataY[ inTraining]
 Y_testing <- dataY[-inTraining]
 

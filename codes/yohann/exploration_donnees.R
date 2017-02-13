@@ -1,5 +1,4 @@
 
-
 #---------------------------------------------------------------------------------------------------------------------------------------------------
 #
 #															Fonctions
@@ -8,7 +7,7 @@
 
 
 mean_sd_by_modal = function(data, var_y, var_x, scale_y = 0){
-### fonction qui permet de representer pour une variable quali, la moyenne et l'écart type par modalité, ainsi que la
+### fonction qui permet de representer pour une variable quali, la moyenne et l'Ã©cart type par modalitÃ©, ainsi que la
 ### la distribution de var_x
 # data : data.frame ; contient var_y et var_x
 # var_y : string ; nom de la variable Y
@@ -168,12 +167,6 @@ data_prospect0 = read.csv(file = "../../data/PG_2017_YEAR0.csv", sep = ",",
 data_prospect1 = read.csv(file = "../../data/PG_2017_YEAR1.csv", sep = ",",
                           dec = ".", header = T, na.strings = c(""," "))
 
-#Remarques sur les donnees
-## valeurs manquantes
-apply(X = data_claim0, MARGIN = 2, FUN = function(x){sum(is.na(x))})
-apply(X = data_prospect0, MARGIN = 2, FUN = function(x){sum(is.na(x))})
-apply(X = data_prospect1, MARGIN = 2, FUN = function(x){sum(is.na(x))})
-
 
 # les valeurs manquantes pour la variable "drv_sex2" sont remplacees par une
 # nouvelle modalite : "autre"
@@ -188,26 +181,6 @@ data_prospect1$drv_sex2 = as.factor(data_prospect1$drv_sex2)
 data_prospect0 = na.omit(data_prospect0)
 
 data_prospect = rbind(data_prospect0, data_prospect1)
-#Les sinistres en 0 (data_claim0)
-
-#Parfois il y a des trop payes, ce qui explique les somme negatives (qui sont des regularisations par l'assureur)
-#Exemples
-data_claim0[which(data_claim0$id_client == "A00033511"),]
-data_claim0[which(data_claim0$id_client == "A00058104"),]
-data_claim0[which(data_claim0$id_client == "A00000241"),]
-data_claim0[which(data_claim0$id_client == "A00003988"),] ## somme des sinistres est negative sur 1 an
-
-
-#Dans la base (data_claim0) une ligne vaut pour un client et une voiture et une declaration
-#Pour la base des couts moyens le regroupement doit se faire de cette maniere. On doit garder la maille la plus fine.
-data_claim0[which(data_claim0$id_client == "A00044168"),]
-
-#Verification
-nrow(count_(data_claim0, vars = c("id_client","id_vehicle","id_claim"))) == nrow(data_claim0)
-nrow(count_(data_claim0, vars = c("id_client","id_vehicle")))
-
-head(data_prospect)
-summary(data_claim0)
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------
 #
@@ -241,39 +214,39 @@ data_prospect = merge(x = data_prospect,
                       all.x = T)
 
 data_prospect$pol_duration_quali_freq = 
-  cut(data_prospect$pol_duration, breaks = c(0,30,Inf),include.lowest = F, right = F, ordered_result = T)
+  cut(data_prospect$pol_duration, breaks = c(0,30,Inf),include.lowest = F, right = F)
 data_prospect$pol_sit_duration_quali_freq = 
   cut(data_prospect$pol_sit_duration, breaks = c(1,2,3,4,5,6,Inf),include.lowest = F, 
-      right = F, ordered_result = T, labels = c("1","2","3","4","5","[6,Inf)"))
+      right = F, labels = c("1","2","3","4","5","[6,Inf)"))
 data_prospect$drv_age1_quali_freq =
-  cut(data_prospect$drv_age1, breaks = c(0,45,75,Inf),include.lowest = F, right = F, ordered_result = T)
+  cut(data_prospect$drv_age1, breaks = c(0,45,75,Inf),include.lowest = F, right = F)
 data_prospect$drv_age2_quali_freq =
-  cut(data_prospect$drv_age2, breaks = c(0,1,28,75,Inf),include.lowest = F, right = F, ordered_result = T)
+  cut(data_prospect$drv_age2, breaks = c(0,1,28,75,Inf),include.lowest = F, right = F)
 data_prospect$drv_age_lic1_quali_freq =
-  cut(data_prospect$drv_age_lic1, breaks = c(0,5,15,30,55,Inf),include.lowest = F, right = F, ordered_result = T)
+  cut(data_prospect$drv_age_lic1, breaks = c(0,5,15,30,55,Inf),include.lowest = F, right = F)
 data_prospect$vh_age_quali_freq = 
-  cut(data_prospect$vh_age, breaks = c(0,5,10,15,Inf),include.lowest = F, right = F, ordered_result = T)
+  cut(data_prospect$vh_age, breaks = c(0,5,10,15,Inf),include.lowest = F, right = F)
 data_prospect$vh_cyl_quali_freq =
   cut(data_prospect$vh_cyl, breaks = c(0,1200,1400,1600,1800,2100,Inf),
-      include.lowest = F, right = F, ordered_result = T, dig.lab = 4)
+      include.lowest = F, right = F, dig.lab = 4)
 data_prospect$vh_din_quali_freq = 
   cut(data_prospect$vh_din, breaks = c(0,70,85,100,115,140,Inf),include.lowest = F, 
-      right = F, ordered_result = T)
+      right = F)
 data_prospect$vh_sale_begin_quali_freq = 
-  cut(data_prospect$vh_sale_begin, breaks = c(0,10,20,Inf),include.lowest = F, right = F, ordered_result = T)
+  cut(data_prospect$vh_sale_begin, breaks = c(0,10,20,Inf),include.lowest = F, right = F)
 data_prospect$vh_sale_end_quali_freq = 
-  cut(data_prospect$vh_sale_end, breaks = c(0,10,20,Inf),include.lowest = F, right = F, ordered_result = T)
+  cut(data_prospect$vh_sale_end, breaks = c(0,10,20,Inf),include.lowest = F, right = F)
 data_prospect$vh_speed_quali_freq = 
-  cut(data_prospect$vh_speed, breaks = c(0,150,170,190,215,Inf),include.lowest = F, right = F, ordered_result = T)
+  cut(data_prospect$vh_speed, breaks = c(0,150,170,190,215,Inf),include.lowest = F, right = F)
 data_prospect$vh_value_quali_freq =
   cut(data_prospect$vh_value, breaks = c(0,10000,20000,30000,40000,Inf),include.lowest = F,dig.lab = 5,
-      right = F, ordered_result = T)
+      right = F)
 data_prospect$vh_weight_quali_freq =
   cut(data_prospect$vh_weight, breaks = c(0,800,1000,1300,1500,1800,Inf),include.lowest = F,dig.lab = 4, 
-      right = F, ordered_result = T)
+      right = F)
 data_prospect$pol_bonus_quali_freq =
   cut(data_prospect$pol_bonus, breaks = c(0.5,0.51,Inf),include.lowest = F, 
-      right = F, ordered_result = T)
+      right = F)
 
 d = data.frame(count_(x = data_prospect0, vars = "vh_make"))
 d = d[order(d$n, decreasing = T),]
@@ -327,19 +300,35 @@ b = dummyVars(formula = as.formula( paste0("~", paste0(x_var_quali_freq , collap
 dummy_data_freq = predict(b, newdata = train_freq[,x_var_quali_freq])
 x_var_quali_freq_dummy = colnames(dummy_data_freq)
 
+### certaines variables dummy sont a supprimer, sinon certaines variables sont liées
+### (c'est a cause des variables sur le driver 2 -> valeurs manquantes)
+var_dummy_delete = c("drv_sex2.autre", "drv_age2_quali_freq.[0,1)")
+
+### modes variables quali
+### (utile de notes les modes car il faut les enlever manuellement dans le GLM)
+### modalite la plus reprensentee (qui correspond a l'absence de driver 2) mais la seconde
+### la plus representee
+modes_quali_var = c("pol_coverage.Maxi", "pol_pay_freq.Yearly",
+                    "pol_payd.No", "pol_usage.WorkPrivate", "drv_drv2.No",
+                    "drv_sex1.M", "drv_sex2.F", "vh_fuel.Diesel",
+                    "vh_type.Tourism", "region.regionParis", 
+                    "vh_make_bis.RENAULT","pol_duration_quali_freq.[0,30)",
+                    "pol_sit_duration_quali_freq.1", "pol_bonus_quali_freq.[0.5,0.51)",
+                    "drv_age1_quali_freq.[45,75)", "drv_age2_quali_freq.[28,75)",
+                    "drv_age_lic1_quali_freq.[30,55)", "vh_age_quali_freq.[5,10)",
+                    "vh_cyl_quali_freq.[1800,2100)","vh_din_quali_freq.[0,70)",
+                    "vh_sale_begin_quali_freq.[0,10)", "vh_sale_end_quali_freq.[0,10)",
+                    "vh_speed_quali_freq.[150,170)", "vh_value_quali_freq.[10000,20000)",
+                    "vh_weight_quali_freq.[1000,1300)")
+
 train_freq = cbind(train_freq, dummy_data_freq)
+# save(train_freq, file = "train_freq.RData")
 
-
-
-
-
-str(train_freq[,x_var_quali_freq])
 #Base cout moyen
 
 a2 = data_claim0 %>% 
   group_by(id_client, id_vehicle, id_claim) %>% 
   summarise(cout = mean(claim_amount))
-
 
 
 # a3 = merge(x = data_prospect0,
@@ -354,10 +343,9 @@ base_cout = merge(x = a2,
                   by.y = c("id_client","id_vehicle"),
                   all.x = T)
 
-# save(train_freq, file = "train_freq.RData")
 # save(base_cout, file = "base_cout.RData")
 
-#Pour ces 5 premières variables je n'ai pas trouvé de seuil intéressant (elle sont donc coupées arbitrairement en 6)
+#Pour ces 5 premiÃ¨res variables je n'ai pas trouvÃ© de seuil intÃ©ressant (elle sont donc coupÃ©es arbitrairement en 6)
 
 data_prospect$pol_bonus_quali_cout = 
   cut(data_prospect$pol_bonus, breaks = 6,include.lowest = F, right = F, ordered_result = T)
@@ -378,7 +366,7 @@ data_prospect$drv_age2_quali_cout =
 data_prospect$drv_age_lic1_quali_cout =
   cut(data_prospect$drv_age_lic1, breaks = 6,include.lowest = F, right = F, ordered_result = T)
 
-#Des variabes que j'ai découpé
+#Des variabes que j'ai dÃ©coupÃ©
 
 data_prospect$vh_age_quali_cout = 
   cut(data_prospect$vh_age, breaks = c(1,5,seq(6,15,by=2),Inf),include.lowest = F, right = F, ordered_result = T)
@@ -404,7 +392,7 @@ data_prospect$vh_value_quali_cout =
   cut(data_prospect$vh_value, breaks = c(0,20000,40000,50000,Inf),include.lowest = F,dig.lab = 5,
       right = F, ordered_result = T)
 
-#Je n'ai pas trouvé non plus pour la dernière variable
+#Je n'ai pas trouvÃ© non plus pour la derniÃ¨re variable
 
 data_prospect$vh_weight_quali_cout =
   cut(data_prospect$vh_weight, breaks = 6,include.lowest = F,dig.lab = 4, 
@@ -437,13 +425,64 @@ x_var_quali_cout_dummy = colnames(dummy_data_cout)
 train_cout = cbind(train_cout, dummy_data_cout)
 
 
+#Pour ces 5 premiÃ¨res variables je n'ai pas trouvÃ© de seuil intÃ©ressant
+
+data_prospect$pol_duration_quali_cout = 
+  cut(data_prospect$pol_duration, breaks = c(0,30,Inf),include.lowest = F, right = F, ordered_result = T)
+
+data_prospect$pol_sit_duration_quali_cout = 
+  cut(data_prospect$pol_sit_duration, breaks = c(1,2,3,4,5,6,Inf),include.lowest = F, 
+      right = F, ordered_result = T, labels = c("1","2","3","4","5","[6,Inf)"))
+
+data_prospect$drv_age1_quali_cout =
+  cut(data_prospect$drv_age1, breaks = c(0,45,75,Inf),include.lowest = F, right = F, ordered_result = T)
+
+data_prospect$drv_age2_quali_cout =
+  cut(data_prospect$drv_age2, breaks = c(0,1,28,75,Inf),include.lowest = F, right = F, ordered_result = T)
+
+data_prospect$drv_age_lic1_quali_cout =
+  cut(data_prospect$drv_age_lic1, breaks = c(0,5,15,30,55,Inf),include.lowest = F, right = F, ordered_result = T)
+
+#Des variabes que j'ai dÃ©coupÃ©
+
+data_prospect$vh_age_quali_cout = 
+  cut(data_prospect$vh_age, breaks = c(1,5,seq(6,15,by=2),Inf),include.lowest = F, right = F, ordered_result = T)
+
+data_prospect$vh_cyl_quali_cout =
+  cut(data_prospect$vh_cyl, breaks = c(0,1000,1500,1700,2000,2200,3000,Inf),
+      include.lowest = F, right = F, ordered_result = T, dig.lab = 4)
+
+data_prospect$vh_din_quali_cout = 
+  cut(data_prospect$vh_din, breaks = c(0,25,30,75,100,150,200,300,Inf),include.lowest = F, 
+      right = F, ordered_result = T)
+
+data_prospect$vh_sale_begin_quali_cout = 
+  cut(data_prospect$vh_sale_begin, breaks = c(0,8,10,12,14,16,18,20,Inf),include.lowest = F, right = F, ordered_result = T)
+
+data_prospect$vh_sale_end_quali_cout = 
+  cut(data_prospect$vh_sale_end, breaks = c(0,8,10,12,14,16,18,20,Inf),include.lowest = F, right = F, ordered_result = T)
+
+data_prospect$vh_speed_quali_cout = 
+  cut(data_prospect$vh_speed, breaks = c(0,100,150,175,200,250,Inf),include.lowest = F, right = F, ordered_result = T)
+
+data_prospect$vh_value_quali_cout =
+  cut(data_prospect$vh_value, breaks = c(0,20000,40000,50000,Inf),include.lowest = F,dig.lab = 5,
+      right = F, ordered_result = T)
+
+#Je n'ai pas trouvÃ© non plus pour la derniÃ¨re variable
+
+data_prospect$vh_weight_quali_cout =
+  cut(data_prospect$vh_weight, breaks = c(0,800,1000,1300,1500,1800,Inf),include.lowest = F,dig.lab = 4, 
+      right = F, ordered_result = T)
+
 #---------------------------------------------------------------------------------------------------------------------------------------------------
 #
 #															Statistiques descriptives
 #
 #---------------------------------------------------------------------------------------------------------------------------------------------------
 
-str(train_freq)
+# variables quali
+## de base
 
 # Certaines variables qualitatives ont trop de modalites pour etre representees avec
 # la fonction "mean_sd_by_modal" : 
@@ -457,17 +496,11 @@ mean_sd_by_modal(data = train_freq, var_y = "freq", var_x = "drv_sex1")
 mean_sd_by_modal(data = train_freq, var_y = "freq", var_x = "drv_sex2")
 mean_sd_by_modal(data = train_freq, var_y = "freq", var_x = "vh_fuel")
 mean_sd_by_modal(data = train_freq, var_y = "freq", var_x = "vh_type")
-mean_sd_by_modal(data = train_freq, var_y = "freq", var_x = "pol_bonus")
 mean_sd_by_modal(data = train_freq, var_y = "freq", var_x = "region")
 mean_sd_by_modal(data = train_freq, var_y = "freq", var_x = "vh_make_bis")
 
 
-#Proposition pour les variables ayant trop de modalites
-#Pour pol_insee on fait des departements
-mean_sd_by_modal(data = data.frame(freq=train_freq$freq, departement=substr(train_freq$pol_insee_code,1,2)), var_y = "freq", var_x = "departement")
-#Resultat pas top, difficile a exploiter surtout dans un GLM
-
-#Quelques regressions pour voir l'influence des variables quantitatives sur la cible 
+# Quelques graphiques pour voir l'influence des variables quantitatives sur la cible 
 scatter_plot_int(data = train_freq, var_y = "freq", var_x = "pol_duration")
 scatter_plot_int(data = train_freq, var_y = "freq", var_x = "pol_sit_duration")
 scatter_plot_int(data = train_freq, var_y = "freq", var_x = "drv_age1", y_lim_haut = c(0,0.3))
@@ -482,44 +515,34 @@ scatter_plot_int(data = train_freq, var_y = "freq", var_x = "vh_sale_end")
 scatter_plot_int(data = train_freq, var_y = "freq", var_x = "vh_speed", y_lim_haut = c(0,0.45))
 scatter_plot_int(data = train_freq, var_y = "freq", var_x = "vh_value", y_lim_haut = c(0,1), y_bin = 1000)
 scatter_plot_int(data = train_freq, var_y = "freq", var_x = "vh_weight", y_bin = 60)
-
-
-
-scatter_plot(var_y = "freq", var_x = "pol_bonus", data = train_freq)
-mean_sd_by_modal(data = train_freq, var_y = "freq", var_x = "pol_bonus")
 scatter_plot_int( data = train_freq, var_y = "freq", var_x = "pol_bonus")
 
-#---------------------------------------------------------------------------------------------------------------------------------------------------
-#
-#															Analyse en composantes principales
-#
-#---------------------------------------------------------------------------------------------------------------------------------------------------
 
-num<-which(sapply(train_freq[1,],is.numeric))
+# Graphiques pour les variables quanti decoupees en modalites
 
-#Il reste un NA
-which(is.na(train_freq),arr.ind = TRUE)
+mean_sd_by_modal(data = train_freq, var_y = "freq", var_x = "pol_duration_quali_freq")
+mean_sd_by_modal(data = train_freq, var_y = "freq", var_x = "pol_sit_duration_quali_freq")
+mean_sd_by_modal(data = train_freq, var_y = "freq", var_x = "pol_bonus_quali_freq")
+mean_sd_by_modal(data = train_freq, var_y = "freq", var_x = "drv_age1_quali_freq")
+mean_sd_by_modal(data = train_freq, var_y = "freq", var_x = "drv_age2_quali_freq")
+mean_sd_by_modal(data = train_freq, var_y = "freq", var_x = "drv_age_lic1_quali_freq")
+mean_sd_by_modal(data = train_freq, var_y = "freq", var_x = "vh_age_quali_freq")
+mean_sd_by_modal(data = train_freq, var_y = "freq", var_x = "vh_cyl_quali_freq")
+mean_sd_by_modal(data = train_freq, var_y = "freq", var_x = "vh_din_quali_freq")
+mean_sd_by_modal(data = train_freq, var_y = "freq", var_x = "vh_sale_begin_quali_freq")
+mean_sd_by_modal(data = train_freq, var_y = "freq", var_x = "vh_sale_end_quali_freq")
+mean_sd_by_modal(data = train_freq, var_y = "freq", var_x = "vh_speed_quali_freq")
+mean_sd_by_modal(data = train_freq, var_y = "freq", var_x = "vh_value_quali_freq")
+mean_sd_by_modal(data = train_freq, var_y = "freq", var_x = "vh_weight_quali_freq")
 
-train_freq[840,20]<-0
 
-library(ade4)
 
-#Je retiens 4 axes principaux
-acp<-dudi.pca(train_freq[,num], center = TRUE, scale = TRUE)
-
-#Pourcentages de variance cumulée
-cumsum(acp$eig/sum(acp$eig)*100)
-
-#Représentation des individus (pas très utile ici)
-plot(acp$li[,1],acp$li[,2])
-
-#Représentation des variables
+#ReprÃ©sentation des variables
 s.corcircle(acp$co,xax=1,yax=2)
 
-
 #---------------------------------------------------------------------------------------------------------------------------------------------------
 #
-#															Découpage des variables cout
+#															DÃ©coupage des variables cout
 #
 #---------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -567,18 +590,18 @@ var_num<-var_num[-grep("freq",var_num)]
 
 #Variables pol_bonus
 scatter_plot("cout","pol_bonus",base_cout,c(0,3000)) 
-#Rien de vraiment significatif. Pourtant, je m'attends à trouver une relation du type bonus=0.5 gros sinistres et plus on se rapproche de 1.5 moins les sinistres
-#sont importants. Un assuré avec un bon bonus n'a pas intérêt à le perdre, il ne rapporte donc que les sinistres graves.
+#Rien de vraiment significatif. Pourtant, je m'attends Ã  trouver une relation du type bonus=0.5 gros sinistres et plus on se rapproche de 1.5 moins les sinistres
+#sont importants. Un assurÃ© avec un bon bonus n'a pas intÃ©rÃªt Ã  le perdre, il ne rapporte donc que les sinistres graves.
 
-#Je ne vois pas où couper
+#Je ne vois pas oÃ¹ couper
 
 #Variables pol_bonus
 scatter_plot("cout","pol_duration",base_cout,c(0,2500)) 
-#Difficile à dire. Je couperais régulièrement.
+#Difficile Ã  dire. Je couperais rÃ©guliÃ¨rement.
 
 #Variables pol_sit_duration
 scatter_plot("cout","pol_sit_duration",base_cout,c(0,4000)) 
-#Difficile à dire. Je couperais régulièrement.
+#Difficile Ã  dire. Je couperais rÃ©guliÃ¨rement.
 
 #Variables drv_age1
 scatter_plot("cout","drv_age1",base_cout,c(0,5000)) 
@@ -595,9 +618,9 @@ scatter_plot("cout","drv_age_lic2",base_cout,c(0,2500))
 
 #Variables vh_age
 scatter_plot("cout","vh_age",base_cout,c(0,5000)) 
-#Enfin une variables d'intérêt !
+#Enfin une variables d'intÃ©rÃªt !
 
-#[0,8[ de 2 en 2 jusqu'à 15 et ensuite le reste
+#[0,8[ de 2 en 2 jusqu'Ã  15 et ensuite le reste
 
 #Variables vh_cyl
 scatter_plot("cout","vh_cyl",base_cout,c(0,3000)) 
@@ -632,10 +655,11 @@ scatter_plot("cout","vh_value",base_cout,c(0,4000))
 #Variables vh_weight
 scatter_plot("cout","vh_weight",base_cout,c(0,4000)) 
 
-#Couper régulièrement
+#Couper rÃ©guliÃ¨rement
 
-#Bonus la heatmap (pas évident à manipuler mais des résltats intéressants)
+#Bonus la heatmap (pas Ã©vident Ã  manipuler mais des rÃ©sltats intÃ©ressants)
 
-heatmap(prop.table(table(cut(cout, breaks = c(seq(0,1000,by=500),seq(2000,8000,by=1000),Inf)),base_cout$vh_age)))
+heatmap(prop.table(table(cut(cout, breaks = c(seq(0,1000,by=100),seq(2000,8000,by=1000),Inf)),base_cout$vh_age)))
 
-#Ce qui est intéressant c'est à la fois l'aspect graphique et la classification hiérarchique qui se trouve en haut
+#Ce qui est intÃ©ressant c'est Ã  la fois l'aspect graphique et la classification hiÃ©rarchique qui se trouve en haut
+
