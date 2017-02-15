@@ -1,6 +1,6 @@
 
 
-#### chargement des packages n�cessaires
+#### chargement des packages nécessaires
 
 wants <- c("ggplot2", # pour faire des graphiques plus jolies qu'avec les fonctions de base
            "dplyr",
@@ -73,12 +73,12 @@ library(ade4)
 #Je retiens 4 axes principaux
 acp<-dudi.pca(train_freq[,num], center = TRUE, scale = TRUE)
 
-#Pourcentages de variance cumulée
+#Pourcentages de variance cumulÃ©e
 cumsum(acp$eig/sum(acp$eig)*100)
 
-#Représentation des individus (pas très utile ici)
+#ReprÃ©sentation des individus (pas trÃ¨s utile ici)
 plot(acp$li[,1],acp$li[,2])
 
-#Représentation des variables
+#ReprÃ©sentation des variables
 s.corcircle(acp$co,xax=1,yax=2)
 

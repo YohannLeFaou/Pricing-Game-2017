@@ -2,12 +2,12 @@
 ############## stats descriptives
 
 mean_sd_by_modal = function(data, var_y, var_x, scale_y = 0){
-  ### fonction qui permet de représenter pour une variable quali, la moyenne et l'écart type par modalité, ainsi que la
+  ### fonction qui permet de reprÃ©senter pour une variable quali, la moyenne et l'Ã©cart type par modalitÃ©, ainsi que la
   ### la distribution de var_x
   # data : data.frame ; contient var_y et var_x
   # var_y : string ; nom de la variable Y
   # var_x : string ; nom de la variable X
-  # scale_y : numeric >= 0 (par défaut 0) ; permet d'élargir la fenêtre des valeurs de Y
+  # scale_y : numeric >= 0 (par dÃ©faut 0) ; permet d'Ã©largir la fenÃªtre des valeurs de Y
   stat = aggregate(x = data[,var_y],
                    by = list(var_x = data[,var_x]),
                    FUN = function(x){c(moyenne = mean(x),ecart_type = sd(x))})
@@ -32,13 +32,13 @@ mean_sd_by_modal = function(data, var_y, var_x, scale_y = 0){
   plot2 = ggplot(data = stat, aes(x = factor(x2), y = moyenne, group = 1)) +
     geom_line(size = 1.2) +
     geom_ribbon(aes(ymin = borne_inf, ymax = borne_sup), fill = "blue", alpha = 0.3) +
-    #guides(colour = guide_legend(override.aes = list(size = 10), title = "Légende : ") ) +
+    #guides(colour = guide_legend(override.aes = list(size = 10), title = "LÃ©gende : ") ) +
     theme(text = element_text(size=17),
           axis.text.x=element_blank(),
           axis.ticks.x=element_blank(),
           axis.title.x = element_blank()) +
     ylab(paste0("Moyenne ", var_y)) +
-    ggtitle(paste0("Moyenne par modalité +/- 1/4.ecart type : ",var_x)) +
+    ggtitle(paste0("Moyenne par modalitÃ© +/- 1/4.ecart type : ",var_x)) +
     scale_y_continuous(limits = c( stat$borne_inf[which.min(stat$borne_inf)] - 
                                      (stat$moyenne[which.min(stat$borne_inf)] -
                                         stat$borne_inf[which.min(stat$borne_inf)]) * scale_y,
@@ -89,15 +89,15 @@ scatter_plot = function(var_y, var_x, data){
 ####################### GLM bootstrap
 
 perf_glm = function(data , var_y, vars_x, family , n_train , n_test, n_repet, fonc_lien_inverse){
-  ### fonction qui permet d'évaluer le R2 et l'indice de Gini d'un modèle par bootstrap, en utilisant différentes taille
-  ### d'échantillon train
+  ### fonction qui permet d'Ã©valuer le R2 et l'indice de Gini d'un modÃ¨le par bootstrap, en utilisant diffÃ©rentes taille
+  ### d'Ã©chantillon train
   # data : data.frame ; contient les variables var_y et vars_x
   # var_y : string ; nom de la variable Y
   # vars_x : vecteur de string ; noms des variables X
-  # family : objet de type "family" ou bien string ; famille de distribution à utiliser dans le GLM
-  # n_train : vecteur d'entiers ; différentes tailles d'échantillons train
-  # n_test : entier ; taille de l'échantillon test (unique pour tte les taille de train)
-  # n_repet : entier ; nb. de "bootstrap" effectués pour une taille de train
+  # family : objet de type "family" ou bien string ; famille de distribution Ã  utiliser dans le GLM
+  # n_train : vecteur d'entiers ; diffÃ©rentes tailles d'Ã©chantillons train
+  # n_test : entier ; taille de l'Ã©chantillon test (unique pour tte les taille de train)
+  # n_repet : entier ; nb. de "bootstrap" effectuÃ©s pour une taille de train
   # fonc_lien_inverse : fonction ; inverse de la fonction lien utiliser dans le GLM (exemple lien log -> fonc_lien_inverse = exp )
   formula = paste0(var_y, " ~ ", paste0(vars_x, collapse = "+"))
   for (i in 1:length(n_train)){
@@ -134,9 +134,9 @@ perf_glm = function(data , var_y, vars_x, family , n_train , n_test, n_repet, fo
 }
 
 coef_glm = function(data , var_y, vars_x, family , n_train, n_repet){
-  ### fonction qui permet de fitter plusieurs GLM sur des échantillons "train" bootstrap de tailles n_train et de renvoyer
-  ### un data.frame avec tous les coefficients évalués
-  # voir fonction "perf_glm" pour le détail des arguments
+  ### fonction qui permet de fitter plusieurs GLM sur des Ã©chantillons "train" bootstrap de tailles n_train et de renvoyer
+  ### un data.frame avec tous les coefficients Ã©valuÃ©s
+  # voir fonction "perf_glm" pour le dÃ©tail des arguments
   formula = paste0(var_y, " ~ ", paste0(vars_x, collapse = "+"))
   for (i in 1:length(n_train)){
     for (j in 1:n_repet){
@@ -157,8 +157,8 @@ coef_glm = function(data , var_y, vars_x, family , n_train, n_repet){
 }
 
 sd_coef_bootstrap = function(data , var_y, vars_x, family , n_train, n_repet){
-  ### fonction qui permet d'évaluer l'écart type des coefficients d'un GLM par méthode bootstrap
-  # voir fonction "perf_glm" pour le détail des arguments
+  ### fonction qui permet d'Ã©valuer l'Ã©cart type des coefficients d'un GLM par mÃ©thode bootstrap
+  # voir fonction "perf_glm" pour le dÃ©tail des arguments
   formula = paste0(var_y, " ~ ", paste0(vars_x, collapse = "+"))
   for (i in 1:length(n_train)){
     for (j in 1:n_repet){
@@ -190,17 +190,17 @@ sd_coef_bootstrap = function(data , var_y, vars_x, family , n_train, n_repet){
 
 plot_coef_glm_quali = function(res_glm, var_x,data, is_int_conf, 
                                sd_manual, order_modal){
-  ### fonction qui permet de visualiser pour une variable quali les coefficients du GLM associés à chaque modalité ainsi que
-  ### l'intervalle de confiance associé à chaque coefficient
-  ### Si sd_manual n'est pas renseigné la fonction utilisera par défaut l'intervalle de confiance fourni dans l'objet GLM
-  ### Les écarts types donnés par le GLM sont parfois faux (dans le GLM poisson par exemple) et alors sd_manual 
-  ### permet de spécifier un vecteur d'écart type pour les coefficients
+  ### fonction qui permet de visualiser pour une variable quali les coefficients du GLM associÃ©s Ã  chaque modalitÃ© ainsi que
+  ### l'intervalle de confiance associÃ© Ã  chaque coefficient
+  ### Si sd_manual n'est pas renseignÃ© la fonction utilisera par dÃ©faut l'intervalle de confiance fourni dans l'objet GLM
+  ### Les Ã©carts types donnÃ©s par le GLM sont parfois faux (dans le GLM poisson par exemple) et alors sd_manual 
+  ### permet de spÃ©cifier un vecteur d'Ã©cart type pour les coefficients
   # res_glm : objet GLM ; output d'un GLM
   # var_x : string ; variable dont on souhaite faire le graphique
   # data : data.frame ; contient la variable "var_x"
-  # is_int_conf : bool ; représente t-on les intervalle de confiance
-  # sd_manual : vecteur d'écarts types pour les coefs
-  # order_modal : vecteur de string ; ordre (de gauche à droite) par lequel on souhaite ordonner les modalités
+  # is_int_conf : bool ; reprÃ©sente t-on les intervalle de confiance
+  # sd_manual : vecteur d'Ã©carts types pour les coefs
+  # order_modal : vecteur de string ; ordre (de gauche Ã  droite) par lequel on souhaite ordonner les modalitÃ©s
   # sur le graphique
   
   if (!missing(sd_manual)){
@@ -231,19 +231,19 @@ plot_coef_glm_quali = function(res_glm, var_x,data, is_int_conf,
       geom_pointrange(aes(ymin = inf_5_pourcent, ymax = sup_5_pourcent),
                       size = 1.2, colour = "blue",
                       fill = "white", shape = 22) +
-      #guides(colour = guide_legend(override.aes = list(size = 10), title = "Légende : ") ) +
+      #guides(colour = guide_legend(override.aes = list(size = 10), title = "LÃ©gende : ") ) +
       theme(legend.position="bottom",text = element_text(size=20)) +
       ggtitle(paste0("Coefficients + int. conf. 95% : ",var_x)) +
       ylab("Coefficients") +
-      xlab("Modalités")
+      xlab("ModalitÃ©s")
   } else {
     ggplot(data = to_plot, aes(x = legende , y = coef, group = 1)) +
       geom_line(size = 1.2, colour = "blue") +
-      #guides(colour = guide_legend(override.aes = list(size = 10), title = "Légende : ") ) +
+      #guides(colour = guide_legend(override.aes = list(size = 10), title = "LÃ©gende : ") ) +
       theme(legend.position="bottom",text = element_text(size=20)) +
       ggtitle(paste0("Coefficients : ",var_x)) +
       ylab("Coefficients") +
-      xlab("Modalités")
+      xlab("ModalitÃ©s")
   }
 }
 
@@ -291,7 +291,7 @@ perf_CART = function(data , var_y, vars_x, method, n_train , n_test, n_repet, ve
 plot_rfSRC_importance = function(rfSRC, nb_variable){
   ## cette foonction trace le graphique des variables les plus importantes dans la random forest
   ## rfSRC : objet output rfsrc
-  ## nb_variable : nb de variable à faire apparaitre sur le graphique
+  ## nb_variable : nb de variable Ã  faire apparaitre sur le graphique
   to_plot = data.frame(variable = names(rfSRC$importance), importance = rfSRC$importance)
   to_plot = to_plot[order(to_plot$importance, decreasing = T),]
   nb_var = min(nb_variable,dim(to_plot)[1])
@@ -314,8 +314,8 @@ plot_influence_variable_quanti_rfSRC = function(rfSRC, var_x){
     geom_smooth() +
     theme_bw() +
     theme(text = element_text(size = 20)) +
-    ggtitle(paste0("Prédiction du modèle en fonction de ", var_x)) +
-    ylab("Prédiction") +
+    ggtitle(paste0("PrÃ©diction du modÃ¨le en fonction de ", var_x)) +
+    ylab("PrÃ©diction") +
     xlab(var_x)
 }
 
@@ -324,9 +324,9 @@ plot_influence_variable_quali_rfSRC = function(rfSRC, var_x){
   ggplot(data = to_plot, aes(x = x, y = y)) +
     geom_boxplot() +
     theme(text = element_text(size = 20)) +
-    ggtitle(paste0("Prédiction de ",rfSRC$yvar.names," en fonction de ", var_x)) +
-    xlab("Modalités") +
-    ylab("Prédictions")
+    ggtitle(paste0("PrÃ©diction de ",rfSRC$yvar.names," en fonction de ", var_x)) +
+    xlab("ModalitÃ©s") +
+    ylab("PrÃ©dictions")
 }
 
 plot_error_rfSRC = function(rfSRC){

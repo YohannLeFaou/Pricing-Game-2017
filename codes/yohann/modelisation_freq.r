@@ -1,14 +1,14 @@
 
 ####### fct arthur
 Score_GLM<-function(dataX,dataY,controle_methode,controle_nombre_fold,controle_nombre_repetition=1,fit_famille,fit_metrique = "RMSE",seed=2017){
-  #dataX : Les prédicteurs
+  #dataX : Les prÃ©dicteurs
   #dataY : La variables Cible
-  #controle_methode : Paramètre de contrôle qui peut prendre les valeurs "cv","repeatedcv","LOOCV"
-  #controle_nombre_fold : Paramètre de contrôle qui gère le nombre de fold (segments) utilisés pour la k-fold cross-validation
-  #controle_nombre_repetition : Paramètre de contrôle qui gère le nombre répétition de la k-fold cross-validation (fixé à 1 par défaut)
-  #fit_famille : Paramètre de la fonction glm() peut prendre toutes les valeurs que propose la fonction glm()
-  #fit_metrique : Paramètre qui gère la métrique d'évaluation fixé à RMSE pour évaluer une régression. Si classification rentre "Accuracy"
-  #seed : La graine pour la reproductibilité des résultats (fixée à 2017 par défaut)
+  #controle_methode : ParamÃ¨tre de contrÃ´le qui peut prendre les valeurs "cv","repeatedcv","LOOCV"
+  #controle_nombre_fold : ParamÃ¨tre de contrÃ´le qui gÃ¨re le nombre de fold (segments) utilisÃ©s pour la k-fold cross-validation
+  #controle_nombre_repetition : ParamÃ¨tre de contrÃ´le qui gÃ¨re le nombre rÃ©pÃ©tition de la k-fold cross-validation (fixÃ© Ã  1 par dÃ©faut)
+  #fit_famille : ParamÃ¨tre de la fonction glm() peut prendre toutes les valeurs que propose la fonction glm()
+  #fit_metrique : ParamÃ¨tre qui gÃ¨re la mÃ©trique d'Ã©valuation fixÃ© Ã  RMSE pour Ã©valuer une rÃ©gression. Si classification rentre "Accuracy"
+  #seed : La graine pour la reproductibilitÃ© des rÃ©sultats (fixÃ©e Ã  2017 par dÃ©faut)
   
   set.seed(seed)
   
@@ -21,7 +21,7 @@ Score_GLM<-function(dataX,dataY,controle_methode,controle_nombre_fold,controle_n
   
   fitControl <- trainControl(# 10-fold CV
     method = controle_methode,
-    number = controle_nombre_fold, # On répète 10 fois la 10-fold CV
+    number = controle_nombre_fold, # On rÃ©pÃ¨te 10 fois la 10-fold CV
     repeats = controle_nombre_repetition,
     allowParallel = F)
   
@@ -80,7 +80,7 @@ stepwise_GLM = function(data, variable_decrease_imp_order, var_y, controle_metho
   return(tab_results)
 }
 
-#### chargement des packages nécessaires
+#### chargement des packages nÃ©cessaires
 
 wants <- c("ggplot2", # pour faire des graphiques plus jolies qu'avec les fonctions de base
            "randomForestSRC", # foret alatoire
@@ -223,7 +223,7 @@ Scores
 
 ## variable importance de la RF
 res2 = stepwise_GLM(data = train_freq,
-             variable_importance = rf2$importance,
+             variable_importance = names(sort(rf2$importance, decreasing = T)),
              var_y = "freq",
              controle_methode = "repeatedcv",
              controle_nombre_fold = 2,
@@ -262,6 +262,7 @@ lines(x = res_agrege3$n_vars, y = res_agrege3$meanR2 - res_agrege3$sdR2, type = 
 
 #### GLM final avec les variables selectionnees
 
+## RF
 variables_finales_RF = names(sort(rf2$importance , decreasing = T)[1:nb_optimal])
 
 glm_final = glm(formula = freq ~ ., 
@@ -270,18 +271,45 @@ glm_final = glm(formula = freq ~ .,
 summary(glm_final)
 
 
-variables_finales_lasso = do.call( "c" , lapply(b$actions , FUN = function(x){(names(x))} ))[1:20]
+## Lasso
+variables_finales_lasso = unique(do.call( "c" , lapply(b$actions , FUN = function(x){(names(x))} )))
 glm_final_lasso = glm(formula = freq ~ ., 
                 data = train_freq[,c("freq", variables_finales_lasso)],
                 family = "gaussian")
 summary(glm_final_lasso)
 
 
+## selection par GLM
+
+glm_all_var = glm(formula = freq ~ ., 
+                      data = train_freq[1:2000,c("freq", setdiff(x_var_quali_freq_dummy,
+                                                           c(modes_quali_var, var_dummy_delete) )[1:5])],
+                      family = "gaussian")
+e = summary(glm_all_var)
+variables_finales_GLM = gsub("`", "",setdiff( row.names(e$coefficients[which(e$coefficients[,"Pr(>|t|)"] < 0.05),]), "(Intercept)"))
+
+glm_final_glm = glm(formula = freq ~ ., 
+                  data = train_freq[,c("freq", variables_finales_GLM)],
+                  family = "gaussian")
+
+Scores<-Score_GLM(dataX = train_freq[,variables_finales_GLM],
+                  dataY = train_freq$freq,
+                  controle_methode = "repeatedcv",
+                  controle_nombre_fold = 2,
+                  controle_nombre_repetition = 3,
+                  fit_famille = "gaussian",
+                  fit_metrique = "RMSE",
+                  seed=2017)
+Scores
+
+
+t = step(glm_all_var) # "backward",
+plot(t)     
 ############ correlations entre les variables quali
 table_correlation = cor(train_freq[,setdiff(x_var_quali_freq_dummy,
                         c(modes_quali_var, var_dummy_delete) )])
 write.csv2(table_correlation, file = "table_correlations.csv2")
 
-## représentation de l'influence des variables dans le GLM
+## reprÃ©sentation de l'influence des variables dans le GLM
 
 
