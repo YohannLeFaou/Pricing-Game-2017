@@ -7,7 +7,7 @@
 
 
 mean_sd_by_modal = function(data, var_y, var_x, scale_y = 0){
-  ### fonction qui permet de representer pour une variable quali, la moyenne et l'écart type par modalité, ainsi que la
+  ### fonction qui permet de representer pour une variable quali, la moyenne et l'Ã©cart type par modalitÃ©, ainsi que la
   ### la distribution de var_x
   # data : data.frame ; contient var_y et var_x
   # var_y : string ; nom de la variable Y
@@ -51,14 +51,45 @@ mean_sd_by_modal = function(data, var_y, var_x, scale_y = 0){
   multiplot(plot2, plot1, cols = 1)
 }
 
-scatter_plot = function(var_y, var_x, data){
-  ggplot(data = data, aes_string(x = var_x, y = var_y)) +
-    geom_point(alpha = 0.3, colour = "blue") +
-    geom_smooth(colour = "red") +
-    theme_bw() +
-    theme(text = element_text(size = 20)) +
-    ggtitle(paste0("Influence de la variable ",var_x, " sur ",var_y))
+
+scatter_plot = function(var_y, var_x, data, vec_y_lim){
+  
+  if(missing(vec_y_lim))
+  {
+    plot2 = ggplot(data = data, aes_string(x = var_x, y = var_y)) +
+      geom_point(alpha = 0.3, colour = "blue") +
+      geom_smooth(colour = "red") +
+      theme_bw() +
+      theme(text = element_text(size = 20)) +
+      ggtitle(paste0("Influence de la variable ",var_x, " sur ",var_y))
+  }
+  else
+  {
+    plot2 = ggplot(data = data, aes_string(x = var_x, y = var_y)) +
+      geom_point(alpha = 0.3, colour = "blue") +
+      ylim(vec_y_lim[1],vec_y_lim[2]) +
+      geom_smooth(colour = "red") +
+      theme_bw() +
+      theme(text = element_text(size = 20)) +
+      ggtitle(paste0("Influence de la variable ",var_x, " sur ",var_y))
+  }
+  
+  # var_x <- "pol_bonus"
+  # var_y <- "cout"
+  # data <- base_cout
+  
+  plot1 = ggplot( aes_string(x = var_x) , 
+                  data = data[!is.na(data[,var_y]) ,]) + # & (data[,var_y] > 0)
+    geom_bar(aes(y = (..count..)/sum(..count..))) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, size =10)) +
+    #scale_y_continuous(labels = scales::percent) +
+    theme(text = element_text(size = 17)) +
+    ylab(paste0("Distribution ",var_x)) +
+    xlab("")
+  
+  multiplot(plot2, plot1, cols = 1)
 }
+
 
 scatter_plot_int = function(var_y, var_x, data, y_lim_haut, y_bin){
   
@@ -296,21 +327,21 @@ x_var_quali_freq = c("pol_coverage", "pol_pay_freq", "pol_payd", "pol_usage", "d
                      "vh_speed_quali_freq", "vh_value_quali_freq", "vh_weight_quali_freq",
                      "vh_make_bis", "region")
 
-b = dummyVars(formula = as.formula( paste0("~", paste0(x_var_quali_freq , collapse = " + ") )), 
+b_freq = dummyVars(formula = as.formula( paste0("~", paste0(x_var_quali_freq , collapse = " + ") )), 
               data = train_freq[,x_var_quali_freq])
 
-dummy_data_freq = predict(b, newdata = train_freq[,x_var_quali_freq])
+dummy_data_freq = predict(b_freq, newdata = train_freq[,x_var_quali_freq])
 x_var_quali_freq_dummy = colnames(dummy_data_freq)
 
-### certaines variables dummy sont a supprimer, sinon certaines variables sont li�es
+### certaines variables dummy sont a supprimer, sinon certaines variables sont liées
 ### (c'est a cause des variables sur le driver 2 -> valeurs manquantes)
-var_dummy_delete = c("drv_sex2.autre", "drv_age2_quali_freq.[0,1)")
+var_dummy_delete_freq = c("drv_sex2.autre", "drv_age2_quali_freq.[0,1)")
 
 ### modes variables quali
 ### (utile de notes les modes car il faut les enlever manuellement dans le GLM)
 ### modalite la plus reprensentee (qui correspond a l'absence de driver 2) mais la seconde
 ### la plus representee
-modes_quali_var = c("pol_coverage.Maxi", "pol_pay_freq.Yearly",
+modes_quali_var_freq = c("pol_coverage.Maxi", "pol_pay_freq.Yearly",
                     "pol_payd.No", "pol_usage.WorkPrivate", "drv_drv2.No",
                     "drv_sex1.M", "drv_sex2.F", "vh_fuel.Diesel",
                     "vh_type.Tourism", "region.regionParis", 
@@ -415,57 +446,62 @@ a2 = data_claim0 %>%
 # save(train_freq, file = "train_freq.RData")
 # save(base_cout, file = "base_cout.RData")
 
-#Pour ces 5 premi�res variables je n'ai pas trouv� de seuil int�ressant (elle sont donc coup�es arbitrairement en 6)
+#Pour ces 5 premières variables je n'ai pas trouvé de seuil intéressant (elle sont donc coupées arbitrairement en 6)
+
 
 data_prospect$pol_bonus_quali_cout = 
-  cut(data_prospect$pol_bonus, breaks = 6,include.lowest = F, right = F)
+  cut(data_prospect$pol_bonus, breaks = c(0.5,0.51,Inf),include.lowest = F, 
+      right = F)
 
+#quantile(x = data_prospect$pol_duration, probs = c(0:5/6))
 data_prospect$pol_duration_quali_cout = 
-  cut(data_prospect$pol_duration, breaks = 6,include.lowest = F, right = F)
+  cut(data_prospect$pol_duration, breaks = c(1,3,6,9,14,22,Inf),include.lowest = F, right = F)
 
 data_prospect$pol_sit_duration_quali_cout = 
-  cut(data_prospect$pol_sit_duration, breaks = 6,include.lowest = F, 
-      right = F, labels = c("1","2","3","4","5","[6,Inf)"))
+  cut(data_prospect$pol_sit_duration, breaks = c(1,3,6,Inf),include.lowest = F, 
+      right = F)
 
 data_prospect$drv_age1_quali_cout =
-  cut(data_prospect$drv_age1, breaks = 6,include.lowest = F, right = F)
+  cut(data_prospect$drv_age1, breaks = c(18,25,35,50,70,78,Inf),include.lowest = F, right = F)
 
 data_prospect$drv_age2_quali_cout =
-  cut(data_prospect$drv_age2, breaks = 6,include.lowest = F, right = F)
+  cut(data_prospect$drv_age2, breaks = c(0,1,27,50,70,Inf),
+      include.lowest = F, right = F)
 
+#quantile(x = data_prospect$drv_age_lic1, probs = c(0:5/6))
 data_prospect$drv_age_lic1_quali_cout =
-  cut(data_prospect$drv_age_lic1, breaks = 6,include.lowest = F, right = F)
+  cut(data_prospect$drv_age_lic1, breaks = c(1,19,27,35,45,55,Inf),include.lowest = F, right = F)
 
-#Des variabes que j'ai d�coup�
+#Des variabes que j'ai découpé
 
 data_prospect$vh_age_quali_cout = 
-  cut(data_prospect$vh_age, breaks = c(1,5,seq(6,15,by=2),Inf),include.lowest = F, right = F)
+  cut(data_prospect$vh_age, breaks = c(1,seq(6,14,by=2),17,Inf),include.lowest = F, right = F)
 
 data_prospect$vh_cyl_quali_cout =
   cut(data_prospect$vh_cyl, breaks = c(0,1000,1500,1700,2000,2200,3000,Inf),
       include.lowest = F, right = F, dig.lab = 4)
 
 data_prospect$vh_din_quali_cout = 
-  cut(data_prospect$vh_din, breaks = c(0,25,30,75,100,150,200,300,Inf),include.lowest = F, 
+  cut(data_prospect$vh_din, breaks = c(0,50,75,100,150,200,250,Inf),include.lowest = F, 
       right = F)
 
 data_prospect$vh_sale_begin_quali_cout = 
   cut(data_prospect$vh_sale_begin, breaks = c(0,8,10,12,14,16,18,20,Inf),include.lowest = F, right = F)
 
 data_prospect$vh_sale_end_quali_cout = 
-  cut(data_prospect$vh_sale_end, breaks = c(0,8,10,12,14,16,18,20,Inf),include.lowest = F, right = F)
+  cut(data_prospect$vh_sale_end, breaks = c(0,6,8,10,12,14,Inf),include.lowest = F, right = F)
 
 data_prospect$vh_speed_quali_cout = 
-  cut(data_prospect$vh_speed, breaks = c(0,100,150,175,200,250,Inf),include.lowest = F, right = F)
+  cut(data_prospect$vh_speed, breaks = c(0,125,150,175,200,220,Inf),include.lowest = F, right = F)
 
 data_prospect$vh_value_quali_cout =
-  cut(data_prospect$vh_value, breaks = c(0,20000,40000,50000,Inf),include.lowest = F,dig.lab = 5,
+  cut(data_prospect$vh_value, breaks = c(0,12000,20000,30000,40000,50000,Inf),include.lowest = F,dig.lab = 5,
       right = F)
 
-#Je n'ai pas trouv� non plus pour la derni�re variable
+#Je n'ai pas trouvé non plus pour la dernière variable
 
 data_prospect$vh_weight_quali_cout =
-  cut(data_prospect$vh_weight, breaks = 6,include.lowest = F,dig.lab = 4, 
+  cut(data_prospect$vh_weight, breaks = c(0,1,800,1200,1600,2000,Inf),include.lowest = F,dig.lab = 4, 
       right = F)
 
 train_cout = merge(x = data_prospect[which(data_prospect$id_year == "Year 0"),],
@@ -474,13 +510,13 @@ train_cout = merge(x = data_prospect[which(data_prospect$id_year == "Year 0"),],
                    by.y = c("id_client","id_vehicle"),
                    all.x = F )
 
-
-train_cout$cout[ is.na(train_cout$cout)] = 0
+#head(train_cout[which(train_cout$cout < 0),])
 
 
 x_var_quali_cout = c("pol_coverage", "pol_pay_freq", "pol_payd", "pol_usage", "drv_drv2",
-                     "drv_sex1", "drv_sex2", "vh_fuel", "vh_type", "pol_duration_quali_cout",
-                     "pol_sit_duration_quali_cout","pol_bonus_quali_cout",
+                     "drv_sex1", "drv_sex2", "vh_fuel", "vh_type","pol_bonus_quali_cout",
+                     "pol_duration_quali_cout",
+                     "pol_sit_duration_quali_cout",
                      "drv_age1_quali_cout", 
                      "drv_age2_quali_cout", "drv_age_lic1_quali_cout", 
                      "vh_age_quali_cout", "vh_cyl_quali_cout", "vh_din_quali_cout",
@@ -494,11 +530,37 @@ b_cout = dummyVars(formula = as.formula( paste0("~", paste0(x_var_quali_cout , c
 dummy_data_cout = predict(b_cout, newdata = train_cout[,x_var_quali_cout])
 x_var_quali_cout_dummy = colnames(dummy_data_cout)
 
-#Suppression des variables li�es
+#Suppression des variables liées
 
-var_dummy_delete_cout = c("drv_sex2.autre")
+var_dummy_delete_cout = c("drv_sex2.autre","drv_age2_quali_cout.[0,1)")
 
 #Marquage des modes
+
+# modes_quali_var_cout = c("pol_coverage.Maxi",
+#                          "pol_pay_freq.Yearly",
+#                          "pol_payd.No",
+#                          "pol_usage.WorkPrivate",
+#                          "drv_drv2.No",
+#                          "drv_sex1.M",
+#                          "drv_sex2.F",
+#                          "vh_fuel.Diesel",
+#                          "vh_type.Tourism",
+#                          "region.regionParis", 
+#                          "vh_make_bis.RENAULT",
+#                          "pol_duration_quali_cout.[0.959,7.83)",
+#                          "pol_sit_duration_quali_cout.1",
+#                          "pol_bonus_quali_cout.[0.498,0.777)",
+#                          "drv_age1_quali_cout.[47.3,61.5)",
+#                          "drv_age2_quali_cout.[-0.1,16.7)",
+#                          "drv_age_lic1_quali_cout.[19.5,38)",
+#                          "vh_age_quali_cout.[1,5)",
+#                          "vh_cyl_quali_cout.[1000,1500)",
+#                          "vh_din_quali_cout.[100,150)",
+#                          "vh_sale_begin_quali_cout.[0,8)",
+#                          "vh_sale_end_quali_cout.[0,8)",
+#                          "vh_speed_quali_cout.[150,175)",
+#                          "vh_value_quali_cout.[0,20000)",
+#                          "vh_weight_quali_cout.[-7.901,1317)")
 
 modes_quali_var_cout = c("pol_coverage.Maxi",
                          "pol_pay_freq.Yearly",
@@ -511,20 +573,21 @@ modes_quali_var_cout = c("pol_coverage.Maxi",
                          "vh_type.Tourism",
                          "region.regionParis", 
                          "vh_make_bis.RENAULT",
-                         "pol_duration_quali_cout.[0.959,7.83)",
-                         "pol_sit_duration_quali_cout.1",
-                         "pol_bonus_quali_cout.[0.498,0.777)",
-                         "drv_age1_quali_cout.[47.3,61.5)",
-                         "drv_age2_quali_cout.[-0.1,16.7)",
-                         "drv_age_lic1_quali_cout.[19.5,38)",
-                         "vh_age_quali_cout.[1,5)",
+                         "pol_duration_quali_cout.[3,6)",
+                         "pol_sit_duration_quali_cout.[1,3)",
+                         "pol_bonus_quali_cout.[0.5,0.51)",
+                         "drv_age1_quali_cout.[50,70)",
+                         "drv_age2_quali_cout.[27,50)",
+                         "drv_age_lic1_quali_cout.[27,35)",
+                         "vh_age_quali_cout.[1,6)",
                          "vh_cyl_quali_cout.[1000,1500)",
                          "vh_din_quali_cout.[100,150)",
                          "vh_sale_begin_quali_cout.[0,8)",
-                         "vh_sale_end_quali_cout.[0,8)",
+                         "vh_sale_end_quali_cout.[0,6)",
                          "vh_speed_quali_cout.[150,175)",
-                         "vh_value_quali_cout.[0,20000)",
-                         "vh_weight_quali_cout.[-7.901,1317)")
+                         "vh_value_quali_cout.[12000,20000)",
+                         "vh_weight_quali_cout.[800,1200)")
+
 
 train_cout = cbind(train_cout, dummy_data_cout)
 
@@ -594,129 +657,111 @@ mean_sd_by_modal(data = train_freq, var_y = "freq", var_x = "vh_weight_quali_fre
 
 
 
-#Représentation des variables
+#Representation des variables
 s.corcircle(acp$co,xax=1,yax=2)
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------
 #
-#															Découpage des variables cout
+#															Decoupage des variables cout
 #
 #---------------------------------------------------------------------------------------------------------------------------------------------------
 
-scatter_plot = function(var_y, var_x, data, vec_y_lim){
-  
-  if(missing(vec_y_lim))
-  {
-    plot2 = ggplot(data = data, aes_string(x = var_x, y = var_y)) +
-      geom_point(alpha = 0.3, colour = "blue") +
-      geom_smooth(colour = "red") +
-      theme_bw() +
-      theme(text = element_text(size = 20)) +
-      ggtitle(paste0("Influence de la variable ",var_x, " sur ",var_y))
-  }
-  else
-  {
-    plot2 = ggplot(data = data, aes_string(x = var_x, y = var_y)) +
-      geom_point(alpha = 0.3, colour = "blue") +
-      ylim(vec_y_lim[1],vec_y_lim[2]) +
-      geom_smooth(colour = "red") +
-      theme_bw() +
-      theme(text = element_text(size = 20)) +
-      ggtitle(paste0("Influence de la variable ",var_x, " sur ",var_y))
-  }
-  
-  # var_x <- "pol_bonus"
-  # var_y <- "cout"
-  # data <- base_cout
-  
-  plot1 = ggplot( aes_string(x = var_x) , 
-                  data = data[!is.na(data[,var_y]) ,]) + # & (data[,var_y] > 0)
-    geom_bar(aes(y = (..count..)/sum(..count..))) +
-    theme(axis.text.x = element_text(angle = 90, hjust = 1, size =10)) +
-    #scale_y_continuous(labels = scales::percent) +
-    theme(text = element_text(size = 17)) +
-    ylab(paste0("Distribution ",var_x)) +
-    xlab("")
-  
-  multiplot(plot2, plot1, cols = 1)
-}
+
 
 var_num<-colnames(base_cout)[sapply(base_cout[1,],is.numeric)]
 var_num<-var_num[-grep("cout",var_num)]
 var_num<-var_num[-grep("freq",var_num)]
 
 #Variables pol_bonus
-scatter_plot("cout","pol_bonus",base_cout,c(0,3000)) 
-#Rien de vraiment significatif. Pourtant, je m'attends à trouver une relation du type bonus=0.5 gros sinistres et plus on se rapproche de 1.5 moins les sinistres
-#sont importants. Un assuré avec un bon bonus n'a pas intérêt à le perdre, il ne rapporte donc que les sinistres graves.
+scatter_plot("cout","pol_bonus",base_cout,c(0,3000))
+#Rien de vraiment significatif. Pourtant, je m'attends a trouver une relation du type bonus=0.5 gros sinistres et plus on se rapproche de 1.5 moins les sinistres
+#sont importants. Un assure avec un bon bonus n'a pas interet a le perdre le perdre, il ne rapporte donc que les sinistres graves.
 
-#Je ne vois pas où couper
+#Je ne vois pas ou couper
+# 0.50, 0.51, Inf
 
 #Variables pol_bonus
 scatter_plot("cout","pol_duration",base_cout,c(0,2500)) 
-#Difficile à dire. Je couperais régulièrement.
+#Difficile a dire. Je couperais regulierement.
+# 1,3,6,9,14,22,Inf
 
 #Variables pol_sit_duration
 scatter_plot("cout","pol_sit_duration",base_cout,c(0,4000)) 
-#Difficile à dire. Je couperais régulièrement.
+#Difficile a dire. Je couperais regulierement.
+# 1,3,6,Inf
 
 #Variables drv_age1
 scatter_plot("cout","drv_age1",base_cout,c(0,5000)) 
+#
+# 18,25,35,50,70,78,Inf
 
 #Variables drv_age2
 scatter_plot("cout","drv_age2",base_cout,c(0,2500)) 
+#
+# 0,1,27,50,70,Inf
 
 #Variables drv_age_lic1
 scatter_plot("cout","drv_age_lic1",base_cout,c(0,2500)) 
 #Enfin ! une pente
+#1,19,27,35,45,55,Inf
 
 #Variables drv_age_lic2
 scatter_plot("cout","drv_age_lic2",base_cout,c(0,2500)) 
+# on la laisse tomber
+#ok
 
 #Variables vh_age
 scatter_plot("cout","vh_age",base_cout,c(0,5000)) 
-#Enfin une variables d'intérêt !
+#Enfin une variables d'interet !
 
-#[0,8[ de 2 en 2 jusqu'à 15 et ensuite le reste
+#[0,8[ de 2 en 2 jusqu'a 15 et ensuite le reste
+#1,6,8,10,12,14,17,Inf
 
 #Variables vh_cyl
 scatter_plot("cout","vh_cyl",base_cout,c(0,3000)) 
-
+scatter_plot_int("cout","vh_cyl",base_cout,c(0,3000), 50)
 # 0,1000 puis 1000,1500 puis 1500,1700 puis 1700,2000 puis 2000, 2200 puis 2200 3000 puis le reste
+#ok
 
 #Variables vh_din
 scatter_plot("cout","vh_din",base_cout,c(0,5000)) 
-
+scatter_plot_int("cout","vh_din",base_cout,c(0,5000), 5)
 #0,25,50,75,100,150,200,300 lereste
+#0,50,75,100,150,200,250 lereste
+
 
 #Variables vh_sale_begin
 scatter_plot("cout","vh_sale_begin",base_cout,c(0,5000)) 
-
 #0,8,10,12,14,16,18 20 le reste
+#ok
 
 #Variables vh_sale_end
 scatter_plot("cout","vh_sale_end",base_cout,c(0,5000)) 
-
 #idem
+#0,6,8,10,12,14,Inf
+
 
 #Variables vh_speed
 scatter_plot("cout","vh_speed",base_cout,c(0,5000)) 
-
+scatter_plot_int("cout","vh_speed",base_cout, c(0,5000))
 #O,100,150,175,200,250 le reste
+#0,125,150,175,200,220,Inf
+
 
 #Variables vh_value
 scatter_plot("cout","vh_value",base_cout,c(0,4000))
-
-#0,2000,4000,5000,le reste
+scatter_plot_int("cout","vh_value",base_cout,c(0,4000),1000)
+#0,2000,4000,5000,le reste (faut mettre un zero en plus)
+#0,12000,20000,30000,40000,50000,Inf
 
 #Variables vh_weight
 scatter_plot("cout","vh_weight",base_cout,c(0,4000)) 
+scatter_plot_int("cout","vh_weight",base_cout,c(0,4000),30)
+#Couper regulierement
+# 0,1,800, 1200,1600,2000, Inf
 
-#Couper régulièrement
-
-#Bonus la heatmap (pas évident à manipuler mais des résltats intéressants)
-
+#Bonus la heatmap (pas evident a manipuler mais des resultats interessants)
 heatmap(prop.table(table(cut(cout, breaks = c(seq(0,1000,by=100),seq(2000,8000,by=1000),Inf)),base_cout$vh_age)))
 
-#Ce qui est intéressant c'est à la fois l'aspect graphique et la classification hiérarchique qui se trouve en haut
+#Ce qui est interessant c'est a la fois l'aspect graphique et la classification hierarchique qui se trouve en haut
 
