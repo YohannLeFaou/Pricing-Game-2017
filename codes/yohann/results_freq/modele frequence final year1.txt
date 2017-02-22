@@ -1,0 +1,68 @@
+> summary(glm_final)
+
+Call:
+glm(formula = freq ~ ., family = "poisson", data = train_freq[, 
+    c("freq", setdiff(variables_finales_GLM, c("vh_din_quali_freq.[70,85)", 
+        "vh_din_quali_freq.[85,100)", "vh_speed_quali_freq.[170,190)", 
+        "vh_speed_quali_freq.[215,Inf)")))])
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-1.0025  -0.5925  -0.5107  -0.3544   5.4900  
+
+Coefficients:
+                                      Estimate Std. Error z value Pr(>|z|)    
+(Intercept)                           -1.67922    0.02940 -57.109  < 2e-16 ***
+pol_coverage.Median1                  -0.23334    0.03868  -6.032 1.62e-09 ***
+pol_coverage.Median2                  -0.23665    0.02699  -8.769  < 2e-16 ***
+pol_coverage.Mini                     -1.04731    0.06235 -16.796  < 2e-16 ***
+pol_pay_freq.Biannual                  0.04918    0.02105   2.337 0.019464 *  
+pol_pay_freq.Monthly                   0.10475    0.02125   4.930 8.23e-07 ***
+pol_pay_freq.Quarterly                 0.20928    0.05068   4.129 3.64e-05 ***
+pol_payd.Yes                          -0.15434    0.04924  -3.134 0.001723 ** 
+pol_usage.AllTrips                     0.48096    0.19289   2.493 0.012654 *  
+pol_usage.Professional                 0.17991    0.02956   6.086 1.16e-09 ***
+drv_sex1.F                             0.03386    0.01787   1.895 0.058115 .  
+vh_fuel.Gasoline                      -0.21377    0.02080 -10.278  < 2e-16 ***
+`pol_duration_quali_freq.[30,Inf)`    -0.19278    0.07642  -2.523 0.011647 *  
+pol_sit_duration_quali_freq.5         -0.12932    0.04365  -2.963 0.003050 ** 
+`pol_sit_duration_quali_freq.[6,Inf)` -0.16477    0.03619  -4.553 5.29e-06 ***
+`pol_bonus_quali_freq.[0.51,Inf)`      0.14340    0.02191   6.545 5.95e-11 ***
+`drv_age1_quali_freq.[0,45)`          -0.05974    0.02148  -2.782 0.005407 ** 
+`drv_age1_quali_freq.[75,Inf)`         0.10318    0.03618   2.852 0.004349 ** 
+`drv_age2_quali_freq.[1,28)`           0.22887    0.03654   6.263 3.77e-10 ***
+`drv_age_lic1_quali_freq.[0,5)`        0.19712    0.07445   2.648 0.008108 ** 
+`drv_age_lic1_quali_freq.[55,Inf)`    -0.10509    0.05240  -2.006 0.044897 *  
+`vh_age_quali_freq.[0,5)`              0.15126    0.01984   7.623 2.48e-14 ***
+`vh_age_quali_freq.[15,Inf)`          -0.34361    0.04247  -8.090 5.98e-16 ***
+`vh_cyl_quali_freq.[0,1200)`          -0.16462    0.03120  -5.277 1.31e-07 ***
+`vh_din_quali_freq.[100,115)`          0.08170    0.02214   3.691 0.000224 ***
+`vh_din_quali_freq.[115,140)`          0.09513    0.02581   3.686 0.000228 ***
+`vh_sale_begin_quali_freq.[20,Inf)`   -0.18619    0.06322  -2.945 0.003229 ** 
+`vh_sale_end_quali_freq.[20,Inf)`     -0.16385    0.08587  -1.908 0.056364 .  
+`vh_speed_quali_freq.[0,150)`         -0.10450    0.03505  -2.982 0.002866 ** 
+`vh_make_bis.MERCEDES BENZ`            0.20465    0.04336   4.720 2.36e-06 ***
+vh_make_bis.VOLKSWAGEN                 0.10549    0.03510   3.005 0.002653 ** 
+region.AlsaceEst                      -0.12092    0.03123  -3.872 0.000108 ***
+region.Aquitaine                      -0.27868    0.03231  -8.624  < 2e-16 ***
+region.AuvergneRhoneAlpes             -0.19329    0.02926  -6.605 3.97e-11 ***
+region.Bourgogne                      -0.21425    0.04623  -4.635 3.57e-06 ***
+region.Bretagne                       -0.23147    0.04069  -5.689 1.28e-08 ***
+region.Centre                         -0.23036    0.04840  -4.760 1.94e-06 ***
+region.Nord                           -0.18503    0.03313  -5.585 2.34e-08 ***
+`region.OutreMer-Corse`               -0.28572    0.14860  -1.923 0.054513 .  
+region.PaysDeLoire                    -0.22530    0.03744  -6.018 1.77e-09 ***
+region.Provence                       -0.21933    0.03675  -5.968 2.40e-09 ***
+region.PyreneeLanguedoc               -0.18663    0.03375  -5.530 3.21e-08 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 60119  on 99998  degrees of freedom
+Residual deviance: 57128  on 99957  degrees of freedom
+AIC: 83452
+
+Number of Fisher Scoring iterations: 6
+
+

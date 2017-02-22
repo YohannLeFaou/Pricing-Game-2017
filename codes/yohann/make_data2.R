@@ -6,168 +6,6 @@
 #---------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-mean_sd_by_modal = function(data, var_y, var_x, scale_y = 0){
-  ### fonction qui permet de representer pour une variable quali, la moyenne et l'Ã©cart type par modalitÃ©, ainsi que la
-  ### la distribution de var_x
-  # data : data.frame ; contient var_y et var_x
-  # var_y : string ; nom de la variable Y
-  # var_x : string ; nom de la variable X
-  # scale_y : numeric >= 0 (par defaut 0) ; permet d'elargir la fenetre des valeurs de Y
-  stat = aggregate(x = data[,var_y],
-                   by = list(var_x = data[,var_x]),
-                   FUN = function(x){c(moyenne = mean(x),ecart_type = sd(x))})
-  
-  stat$moyenne = stat$x[,"moyenne"]
-  stat$ecart_type = stat$x[,"ecart_type"] / 4
-  stat$borne_inf = stat$moyenne - stat$ecart_type
-  stat$borne_sup = stat$moyenne + stat$ecart_type
-  stat$x2 = stat$var_x
-  
-  plot1 = ggplot( aes_string(x = var_x) , 
-                  data = data[!is.na(data[,var_y]) ,]) + # & (data[,var_y] > 0)
-    geom_bar(aes(y = (..count..)/sum(..count..))) +
-    theme(axis.text.x = element_text(angle = 90, hjust = 1, size =10)) +
-    #scale_y_continuous(labels = scales::percent) +
-    theme(text = element_text(size = 17)) +
-    ylab(paste0("Distribution ",var_x)) +
-    xlab("")
-  
-  plot2 = ggplot(data = stat, aes(x = factor(x2), y = moyenne, group = 1)) +
-    geom_line(size = 1.2) +
-    geom_ribbon(aes(ymin = borne_inf, ymax = borne_sup), fill = "blue", alpha = 0.3) +
-    theme(text = element_text(size=17),
-          axis.text.x=element_blank(),
-          axis.ticks.x=element_blank(),
-          axis.title.x = element_blank()) +
-    ylab(paste0("Moyenne ", var_y)) +
-    ggtitle(paste0("Moyenne par modalite +/- 1/4.ecart type : ",var_x)) +
-    scale_y_continuous(limits = c(stat$borne_inf[which.min(stat$borne_inf)] - 
-                                    (stat$moyenne[which.min(stat$borne_inf)] -
-                                       stat$borne_inf[which.min(stat$borne_inf)]) * scale_y,
-                                  stat$borne_sup[which.max(stat$borne_sup)] - 
-                                    (stat$moyenne[which.max(stat$borne_sup)] -
-                                       stat$borne_sup[which.max(stat$borne_sup)]) * scale_y ) )
-  
-  multiplot(plot2, plot1, cols = 1)
-}
-
-
-scatter_plot = function(var_y, var_x, data, vec_y_lim){
-  
-  if(missing(vec_y_lim))
-  {
-    plot2 = ggplot(data = data, aes_string(x = var_x, y = var_y)) +
-      geom_point(alpha = 0.3, colour = "blue") +
-      geom_smooth(colour = "red") +
-      theme_bw() +
-      theme(text = element_text(size = 20)) +
-      ggtitle(paste0("Influence de la variable ",var_x, " sur ",var_y))
-  }
-  else
-  {
-    plot2 = ggplot(data = data, aes_string(x = var_x, y = var_y)) +
-      geom_point(alpha = 0.3, colour = "blue") +
-      ylim(vec_y_lim[1],vec_y_lim[2]) +
-      geom_smooth(colour = "red") +
-      theme_bw() +
-      theme(text = element_text(size = 20)) +
-      ggtitle(paste0("Influence de la variable ",var_x, " sur ",var_y))
-  }
-  
-  # var_x <- "pol_bonus"
-  # var_y <- "cout"
-  # data <- base_cout
-  
-  plot1 = ggplot( aes_string(x = var_x) , 
-                  data = data[!is.na(data[,var_y]) ,]) + # & (data[,var_y] > 0)
-    geom_bar(aes(y = (..count..)/sum(..count..))) +
-    theme(axis.text.x = element_text(angle = 90, hjust = 1, size =10)) +
-    #scale_y_continuous(labels = scales::percent) +
-    theme(text = element_text(size = 17)) +
-    ylab(paste0("Distribution ",var_x)) +
-    xlab("")
-  
-  multiplot(plot2, plot1, cols = 1)
-}
-
-
-scatter_plot_int = function(var_y, var_x, data, y_lim_haut, y_bin){
-  
-  if(!missing(y_bin)){
-    data[,var_x] = data[,var_x] - (data[,var_x] %% y_bin)
-  }
-  a = data[,c(var_x, var_y)]
-  colnames(a) = c("x","y")
-  to_plot = a %>% 
-    group_by(x) %>% 
-    summarise(y = mean(y))
-  
-  if(missing(y_lim_haut)){
-    plot1 = ggplot(data = to_plot, aes(x = x, y = y)) +
-      geom_point(alpha = 0.3, colour = "blue") +
-      geom_smooth(colour = "red", method = 'loess') +
-      theme_bw() +
-      theme(text = element_text(size = 20)) +
-      ggtitle(paste0("Influence de la variable ",var_x, " sur ",var_y))
-  } else {
-    plot1 = ggplot(data = to_plot, aes(x = x, y = y)) +
-      geom_point(alpha = 0.3, colour = "blue") +
-      geom_smooth(colour = "red", method = 'loess') +
-      theme_bw() +
-      theme(text = element_text(size = 20)) +
-      ylim(y_lim_haut) +
-      ggtitle(paste0("Influence de la variable ",var_x, " sur ",var_y))
-  }
-  
-  plot2 = ggplot( aes_string(x = var_x) , 
-                  data = data[!is.na(data[,var_y]) & (data[,var_y] > 0),]) +
-    geom_bar(aes(y = (..count..)/sum(..count..))) +
-    #scale_y_continuous(labels = scales::percent) +
-    theme(text = element_text(size = 17)) +
-    ylab(paste0("Distribution ",var_x)) +
-    xlab("")
-  
-  multiplot(plot1, plot2, cols = 1)
-}
-
-
-multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
-  ## fonction qui permet de faire des images avec plusieurs graphiques avec ggplot2
-  library(grid)
-  
-  # Make a list from the ... arguments and plotlist
-  plots <- c(list(...), plotlist)
-  
-  numPlots = length(plots)
-  
-  # If layout is NULL, then use 'cols' to determine layout
-  if (is.null(layout)) {
-    # Make the panel
-    # ncol: Number of columns of plots
-    # nrow: Number of rows needed, calculated from # of cols
-    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
-                     ncol = cols, nrow = ceiling(numPlots/cols))
-  }
-  
-  if (numPlots==1) {
-    print(plots[[1]])
-    
-  } else {
-    # Set up the page
-    grid.newpage()
-    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
-    
-    # Make each plot, in the correct location
-    for (i in 1:numPlots) {
-      # Get the i,j matrix positions of the regions that contain this subplot
-      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
-      
-      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
-                                      layout.pos.col = matchidx$col))
-    }
-  }
-}
-
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------
 #
@@ -188,8 +26,9 @@ for(i in wants){ library(i,character.only = TRUE)}
 
 setwd("Y:/Forsides France/06_Solo/Yohann LE FAOU/mission_forsides/pricing_game_2017")
 source("codes/INIT.R")
-
 setwd(YOHANN.DIR)
+source("fonctions.r")
+
 
 data_claim0 = read.csv(file = "../../data/PG_2017_CLAIMS_YEAR0.csv", sep = ",",
                        dec = ".", header = T, na.strings = c(""," "))
@@ -303,9 +142,8 @@ train_freq = merge(x = data_prospect[which(data_prospect$id_year == "Year 0"),],
                    by.x = c("id_client","id_vehicle"),
                    by.y = c("id_client","id_vehicle"),
                    all.x = T )
-
 train_freq$freq[ is.na(train_freq$freq)] = 0
-
+test_freq = data_prospect[which(data_prospect$id_year == "Year 1"),]
 
 x_var_RF1 = c("pol_bonus", 
               "pol_coverage","pol_duration","pol_sit_duration","pol_pay_freq",
@@ -330,8 +168,10 @@ x_var_quali_freq = c("pol_coverage", "pol_pay_freq", "pol_payd", "pol_usage", "d
 b_freq = dummyVars(formula = as.formula( paste0("~", paste0(x_var_quali_freq , collapse = " + ") )), 
               data = train_freq[,x_var_quali_freq])
 
-dummy_data_freq = predict(b_freq, newdata = train_freq[,x_var_quali_freq])
-x_var_quali_freq_dummy = colnames(dummy_data_freq)
+dummy_data_train_freq = predict(b_freq, newdata = train_freq[,x_var_quali_freq])
+dummy_data_test_freq = predict(b_freq, newdata = test_freq[,x_var_quali_freq])
+
+x_var_quali_freq_dummy = colnames(dummy_data_train_freq)
 
 ### certaines variables dummy sont a supprimer, sinon certaines variables sont liées
 ### (c'est a cause des variables sur le driver 2 -> valeurs manquantes)
@@ -354,8 +194,11 @@ modes_quali_var_freq = c("pol_coverage.Maxi", "pol_pay_freq.Yearly",
                     "vh_speed_quali_freq.[150,170)", "vh_value_quali_freq.[10000,20000)",
                     "vh_weight_quali_freq.[1000,1300)")
 
-train_freq = cbind(train_freq, dummy_data_freq)
+train_freq = cbind(train_freq, dummy_data_train_freq)
+test_freq = cbind(test_freq, dummy_data_test_freq)
+
 save(train_freq, file = "train_freq.RData")
+save(test_freq, file = "test_freq")
 
 #Base cout moyen
 
@@ -427,27 +270,18 @@ a2 = data_claim0 %>%
   group_by(id_client, id_vehicle, id_claim) %>% 
   summarise(cout = mean(claim_amount))
 
+# ajout de la variable frequence
+## (pour voir s'il y a independance entre cout et frequence)
 
-# a3 = merge(x = data_prospect0,
-#                   y = a2,
-#                   by.x = c("id_client","id_vehicle"),
-#                   by.y = c("id_client","id_vehicle"),
-#                   all.x = F )
-
-#base_cout = merge(x = data_prospect[which(data_prospect$id_year == "Year 0"),],
-# y = a2,
-# by.x = c("id_client","id_vehicle"),
-# by.y = c("id_client","id_vehicle"),
-# all.x = F)
-
-# save(base_cout, file = "base_cout.RData")
-
-
-# save(train_freq, file = "train_freq.RData")
-# save(base_cout, file = "base_cout.RData")
+# a1 = data_claim0 %>% 
+#   group_by(id_client, id_vehicle) %>% 
+#   summarise(freq = n())
+# 
+# a2 = merge(x = a2, y = a1, by = c("id_client", "id_vehicle"), all.x = T)
+# 
+# a2 %>% group_by(freq) %>% summarise(nb_sinistre = n(),cout_moyen = mean(cout))
 
 #Pour ces 5 premières variables je n'ai pas trouvé de seuil intéressant (elle sont donc coupées arbitrairement en 6)
-
 
 data_prospect$pol_bonus_quali_cout = 
   cut(data_prospect$pol_bonus, breaks = c(0.5,0.51,Inf),include.lowest = F, 
@@ -510,8 +344,7 @@ train_cout = merge(x = data_prospect[which(data_prospect$id_year == "Year 0"),],
                    by.y = c("id_client","id_vehicle"),
                    all.x = F )
 
-#head(train_cout[which(train_cout$cout < 0),])
-
+test_cout = data_prospect[which(data_prospect$id_year == "Year 1"),]
 
 x_var_quali_cout = c("pol_coverage", "pol_pay_freq", "pol_payd", "pol_usage", "drv_drv2",
                      "drv_sex1", "drv_sex2", "vh_fuel", "vh_type","pol_bonus_quali_cout",
@@ -527,7 +360,9 @@ x_var_quali_cout = c("pol_coverage", "pol_pay_freq", "pol_payd", "pol_usage", "d
 b_cout = dummyVars(formula = as.formula( paste0("~", paste0(x_var_quali_cout , collapse = " + ") )), 
                    data = train_cout[,x_var_quali_cout])
 
-dummy_data_cout = predict(b_cout, newdata = train_cout[,x_var_quali_cout])
+dummy_data_train_cout = predict(b_cout, newdata = train_cout[,x_var_quali_cout])
+dummy_data_test_cout = predict(b_cout, newdata = test_cout[,x_var_quali_cout])
+
 x_var_quali_cout_dummy = colnames(dummy_data_cout)
 
 #Suppression des variables liées
@@ -588,12 +423,13 @@ modes_quali_var_cout = c("pol_coverage.Maxi",
                          "vh_value_quali_cout.[12000,20000)",
                          "vh_weight_quali_cout.[800,1200)")
 
-
-train_cout = cbind(train_cout, dummy_data_cout)
-
-apply(train_cout[,51:192],2,sum)
+train_cout = cbind(train_cout, dummy_data_train_cout)
+test_cout = cbind(test_cout, dummy_data_test_cout)
 
 save(train_cout,file = "train_cout.RData")
+save(test_cout, file = "test_cout.RData")
+
+#sum(apply(X = test_cout, MARGIN = 2, FUN = function(x){sum(is.na(x))}) != 0)
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------
 #

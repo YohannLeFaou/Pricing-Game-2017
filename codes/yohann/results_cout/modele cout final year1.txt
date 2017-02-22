@@ -1,0 +1,35 @@
+> summary(fit_final_gamma)
+
+Call:
+glm(formula = cout ~ ., family = Gamma(link = "log"), data = train_cout[, 
+    c("cout", final_variable_cout)])
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-5.1412  -0.2743  -0.1218   0.1103   9.5801  
+
+Coefficients:
+                                    Estimate Std. Error t value Pr(>|t|)    
+(Intercept)                         7.885389   0.009535 826.971  < 2e-16 ***
+vh_make_bis.BMW                     0.196112   0.048437   4.049 5.17e-05 ***
+region.Provence                     0.109738   0.025943   4.230 2.35e-05 ***
+pol_coverage.Median2               -0.096321   0.019197  -5.017 5.30e-07 ***
+drv_sex2.M                          0.061834   0.019053   3.245 0.001176 ** 
+pol_coverage.Median1               -0.097361   0.026786  -3.635 0.000279 ***
+`vh_sale_begin_quali_cout.[14,16)` -0.057018   0.031903  -1.787 0.073918 .  
+region.Normandie                   -0.098721   0.032163  -3.069 0.002149 ** 
+`drv_age2_quali_cout.[1,27)`        0.054697   0.029356   1.863 0.062446 .  
+`pol_duration_quali_cout.[22,Inf)`  0.045462   0.017794   2.555 0.010634 *  
+region.AlsaceEst                    0.050820   0.021305   2.385 0.017075 *  
+`vh_make_bis.MERCEDES BENZ`         0.079042   0.032803   2.410 0.015982 *  
+region.Aquitaine                   -0.039535   0.022125  -1.787 0.073971 .  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for Gamma family taken to be 0.5884422)
+
+    Null deviance: 2387.1  on 14242  degrees of freedom
+Residual deviance: 2306.5  on 14230  degrees of freedom
+AIC: 237447
+
+Number of Fisher Scoring iterations: 6Fisher Scoring iterations: 8

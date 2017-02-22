@@ -1,0 +1,11 @@
+
+> a2 %>% group_by(freq) %>% summarise(nb_sinistre = n(),cout_moyen = mean(cout))
+# A tibble: 6 × 3
+   freq nb_sinistre cout_moyen
+  <int>       <int>      <dbl>
+1     1       11238  838.40414
+2     2        2528  757.61596
+3     3         402  855.57585
+4     4          64  649.16438
+5     5           5  352.02400
+6     6           6   20.23333
