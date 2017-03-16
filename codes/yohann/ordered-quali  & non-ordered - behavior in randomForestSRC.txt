@@ -1,0 +1,172 @@
+On voit dans l'exemple qui suit que randomForestSRC ne traite pas de la même façon les variales ordered quali et quali (non-ordered) dans sa procédure.
+On montre à la fin que les ordered-quali sotn en fait traitée commme des quanti !!!
+
+
+> t1 = Sys.time()
+> rf1 = rfsrc( formula = freq ~ . ,
++              data = train_freq[selected_lines,c("freq",x_var_RF1)],
++              ntree = 5, 
++              nodedepth = 6,
++              nsplit = 6,
++              forest = T,
++              #importance = "permute",
++              seed = 2017)
+> Sys.time() - t1
+Time difference of 0.804081 secs
+> rf1
+                         Sample size: 50000
+                     Number of trees: 5
+          Minimum terminal node size: 5
+       Average no. of terminal nodes: 60
+No. of variables tried at each split: 9
+              Total no. of variables: 26
+                            Analysis: RF-R
+                              Family: regr
+                      Splitting rule: mse *random*
+       Number of random split points: 6
+                % variance explained: 1.56
+                          Error rate: 0.16
+
+> t1 = Sys.time()
+> rf1 = rfsrc( formula = freq ~ . ,
++              data = train_freq[selected_lines,c("freq",x_var_RF1)],
++              ntree = 5, 
++              nodedepth = 6,
++              nsplit = 6,
++              forest = T,
++              #importance = "permute",
++              seed = 2017)
+> Sys.time() - t1
+Time difference of 0.7190719 secs
+> rf1
+                         Sample size: 50000
+                     Number of trees: 5
+          Minimum terminal node size: 5
+       Average no. of terminal nodes: 60
+No. of variables tried at each split: 9
+              Total no. of variables: 26
+                            Analysis: RF-R
+                              Family: regr
+                      Splitting rule: mse *random*
+       Number of random split points: 6
+                % variance explained: 1.56
+                          Error rate: 0.16
+
+> train_freq$pol_coverage = as.character(train_freq$pol_coverage)
+> train_freq$pol_coverage = factor(train_freq$pol_coverage, ordered = T, levels = c("Mini","Median2","Median1","Maxi"))
+> t1 = Sys.time()
+> rf1 = rfsrc( formula = freq ~ . ,
++              data = train_freq[selected_lines,c("freq",x_var_RF1)],
++              ntree = 5, 
++              nodedepth = 6,
++              nsplit = 6,
++              forest = T,
++              #importance = "permute",
++              seed = 2017)
+> Sys.time() - t1
+Time difference of 0.761076 secs
+> rf1
+                         Sample size: 50000
+                     Number of trees: 5
+          Minimum terminal node size: 5
+       Average no. of terminal nodes: 59.6
+No. of variables tried at each split: 9
+              Total no. of variables: 26
+                            Analysis: RF-R
+                              Family: regr
+                      Splitting rule: mse *random*
+       Number of random split points: 6
+                % variance explained: 1.13
+                          Error rate: 0.16
+
+> t1 = Sys.time()
+> rf1 = rfsrc( formula = freq ~ . ,
++              data = train_freq[selected_lines,c("freq",x_var_RF1)],
++              ntree = 5, 
++              nodedepth = 6,
++              nsplit = 6,
++              forest = T,
++              #importance = "permute",
++              seed = 2017)
+> Sys.time() - t1
+Time difference of 0.6610661 secs
+> rf1
+                         Sample size: 50000
+                     Number of trees: 5
+          Minimum terminal node size: 5
+       Average no. of terminal nodes: 59.6
+No. of variables tried at each split: 9
+              Total no. of variables: 26
+                            Analysis: RF-R
+                              Family: regr
+                      Splitting rule: mse *random*
+       Number of random split points: 6
+                % variance explained: 1.13
+                          Error rate: 0.16
+
+> train_freq$pol_coverage = as.character(train_freq$pol_coverage)
+> train_freq$pol_coverage = as.factor(train_freq$pol_coverage)
+> t1 = Sys.time()
+> rf1 = rfsrc( formula = freq ~ . ,
++              data = train_freq[selected_lines,c("freq",x_var_RF1)],
++              ntree = 5, 
++              nodedepth = 6,
++              nsplit = 6,
++              forest = T,
++              #importance = "permute",
++              seed = 2017)
+> Sys.time() - t1
+Time difference of 0.717072 secs
+> rf1
+                         Sample size: 50000
+                     Number of trees: 5
+          Minimum terminal node size: 5
+       Average no. of terminal nodes: 60
+No. of variables tried at each split: 9
+              Total no. of variables: 26
+                            Analysis: RF-R
+                              Family: regr
+                      Splitting rule: mse *random*
+       Number of random split points: 6
+                % variance explained: 1.56
+                          Error rate: 0.16
+
+
+### transformation de la variable ordered_quali en numeric (en gardant le bon ordre)
+
+> train_freq$pol_coverage = as.character(train_freq$pol_coverage)
+> train_freq$pol_coverage = factor(train_freq$pol_coverage, ordered = T, levels = c("Mini","Median2","Median1","Maxi"))
+> head(train_freq$pol_coverage , 30)
+ [1] Maxi    Maxi    Maxi    Median2 Maxi    Median1 Maxi    Maxi    Median2 Maxi    Maxi   
+[12] Maxi    Maxi    Maxi    Maxi    Maxi    Maxi    Median2 Maxi    Median2 Median2 Median2
+[23] Maxi    Maxi    Maxi    Median2 Median2 Mini    Mini    Maxi   
+Levels: Mini < Median2 < Median1 < Maxi
+> train_freq$pol_coverage = as.numeric(train_freq$pol_coverage)
+> head(train_freq$pol_coverage , 30)
+ [1] 4 4 4 2 4 3 4 4 2 4 4 4 4 4 4 4 4 2 4 2 2 2 4 4 4 2 2 1 1 4
+> t1 = Sys.time()
+> rf1 = rfsrc( formula = freq ~ . ,
++              data = train_freq[selected_lines,c("freq",x_var_RF1)],
++              ntree = 5, 
++              nodedepth = 6,
++              nsplit = 6,
++              forest = T,
++              #importance = "permute",
++              seed = 2017)
+> Sys.time() - t1
+Time difference of 0.671067 secs
+> rf1
+                         Sample size: 50000
+                     Number of trees: 5
+          Minimum terminal node size: 5
+       Average no. of terminal nodes: 59.6
+No. of variables tried at each split: 9
+              Total no. of variables: 26
+                            Analysis: RF-R
+                              Family: regr
+                      Splitting rule: mse *random*
+       Number of random split points: 6
+                % variance explained: 1.13
+                          Error rate: 0.16
+
+What else ?

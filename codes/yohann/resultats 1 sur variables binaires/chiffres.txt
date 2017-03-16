@@ -1,0 +1,123 @@
+
+> t1 = Sys.time()
+> rf1 = rfsrc( formula = freq ~ . ,
++              data = train_freq[selected_lines,c("freq",
++                                                 setdiff(x_var_quali_freq_dummy,
++                                                         c(modes_quali_var, var_dummy_delete) ))],
++              ntree = 100, 
++              #nodeepth = 6, 
++              nodesize = 100,
++              importance = "permute",
++              nsplit = 6,
++              forest = T,
++              seed = 2017)
+> Sys.time() - t1
+Time difference of 16.55945 mins
+
+
+> rf1$importance
+               pol_coverage.Median1                pol_coverage.Median2 
+                       5.651698e-04                        5.376373e-04 
+                  pol_coverage.Mini               pol_pay_freq.Biannual 
+                       1.495755e-03                       -8.193814e-05 
+               pol_pay_freq.Monthly              pol_pay_freq.Quarterly 
+                       1.050688e-04                        4.858221e-05 
+                       pol_payd.Yes                  pol_usage.AllTrips 
+                       2.095008e-04                        4.130970e-06 
+             pol_usage.Professional                   pol_usage.Retired 
+                       2.968727e-04                        1.404695e-03 
+                       drv_drv2.Yes                          drv_sex1.F 
+                       6.145971e-05                        1.634525e-04 
+                         drv_sex2.M                      vh_fuel.Diesel 
+                       1.513330e-04                        2.322719e-03 
+                   vh_fuel.Gasoline                      vh_fuel.Hybrid 
+                       2.805498e-03                       -1.998612e-05 
+                 vh_type.Commercial    pol_duration_quali_freq.[30,Inf) 
+                       2.153569e-03                        5.706452e-05 
+      pol_sit_duration_quali_freq.2       pol_sit_duration_quali_freq.3 
+                      -1.630346e-05                        1.765676e-07 
+      pol_sit_duration_quali_freq.4       pol_sit_duration_quali_freq.5 
+                      -4.999940e-05                       -8.721571e-06 
+pol_sit_duration_quali_freq.[6,Inf)     pol_bonus_quali_freq.[0.51,Inf) 
+                       2.084012e-04                        4.982442e-04 
+         drv_age1_quali_freq.[0,45)        drv_age1_quali_freq.[75,Inf) 
+                       7.032460e-04                        6.901879e-04 
+         drv_age2_quali_freq.[1,28)        drv_age2_quali_freq.[75,Inf) 
+                       3.515269e-04                        1.288648e-04 
+      drv_age_lic1_quali_freq.[0,5)      drv_age_lic1_quali_freq.[5,15) 
+                       1.560592e-04                        5.439747e-04 
+    drv_age_lic1_quali_freq.[15,30)    drv_age_lic1_quali_freq.[55,Inf) 
+                       9.768040e-04                        4.180451e-04 
+            vh_age_quali_freq.[0,5)           vh_age_quali_freq.[10,15) 
+                       3.189890e-03                        1.135044e-03 
+         vh_age_quali_freq.[15,Inf)          vh_cyl_quali_freq.[0,1200) 
+                       3.744219e-03                        1.052530e-03 
+      vh_cyl_quali_freq.[1200,1400)       vh_cyl_quali_freq.[1400,1600) 
+                       6.887964e-04                        7.285720e-04 
+      vh_cyl_quali_freq.[1600,1800)        vh_cyl_quali_freq.[2100,Inf) 
+                       1.101239e-03                        5.961189e-04 
+          vh_din_quali_freq.[70,85)          vh_din_quali_freq.[85,100) 
+                       6.503219e-04                        1.120368e-03 
+        vh_din_quali_freq.[100,115)         vh_din_quali_freq.[115,140) 
+                       7.051115e-04                        3.645151e-04 
+        vh_din_quali_freq.[140,Inf)    vh_sale_begin_quali_freq.[10,20) 
+                       3.968900e-04                        2.610338e-03 
+  vh_sale_begin_quali_freq.[20,Inf)      vh_sale_end_quali_freq.[10,20) 
+                       1.884443e-03                        2.754614e-03 
+    vh_sale_end_quali_freq.[20,Inf)         vh_speed_quali_freq.[0,150) 
+                       3.018754e-04                        1.090743e-03 
+      vh_speed_quali_freq.[170,190)       vh_speed_quali_freq.[190,215) 
+                       4.052476e-04                        1.399075e-03 
+      vh_speed_quali_freq.[215,Inf)       vh_value_quali_freq.[0,10000) 
+                       2.590813e-04                        1.373688e-03 
+  vh_value_quali_freq.[20000,30000)   vh_value_quali_freq.[30000,40000) 
+                       9.251105e-04                        3.066759e-04 
+    vh_value_quali_freq.[40000,Inf)        vh_weight_quali_freq.[0,800) 
+                       2.097949e-04                        1.335731e-03 
+    vh_weight_quali_freq.[800,1000)    vh_weight_quali_freq.[1300,1500) 
+                       1.454316e-03                        1.532277e-03 
+   vh_weight_quali_freq.[1500,1800)     vh_weight_quali_freq.[1800,Inf) 
+                       6.079471e-04                        2.374283e-04 
+                   vh_make_bis.AUDI                  vh_make_bis.AUTRES 
+                       5.603596e-05                        2.452249e-04 
+                    vh_make_bis.BMW                 vh_make_bis.CITROEN 
+                       3.829641e-05                        1.536292e-04 
+                   vh_make_bis.FIAT                    vh_make_bis.FORD 
+                       1.354924e-04                        5.248308e-05 
+          vh_make_bis.MERCEDES BENZ                  vh_make_bis.NISSAN 
+                       1.861060e-04                        1.596087e-04 
+                   vh_make_bis.OPEL                 vh_make_bis.PEUGEOT 
+                       1.190540e-04                        1.866155e-04 
+                 vh_make_bis.TOYOTA              vh_make_bis.VOLKSWAGEN 
+                       6.080347e-05                        3.846387e-04 
+                   region.AlsaceEst                    region.Aquitaine 
+                      -1.682090e-06                       -2.953721e-05 
+          region.AuvergneRhoneAlpes                    region.Bourgogne 
+                      -9.665994e-05                       -3.378238e-05 
+                    region.Bretagne                       region.Centre 
+                       1.378185e-05                       -1.295853e-05 
+                        region.Nord                    region.Normandie 
+                      -6.628492e-06                        1.333915e-04 
+              region.OutreMer-Corse                  region.PaysDeLoire 
+                      -1.432939e-05                       -1.795981e-05 
+                    region.Provence             region.PyreneeLanguedoc 
+                      -1.753194e-05                       -1.054860e-05 
+
+
+> plot_rfSRC_importance(rfSRC = rf1, nb_variable = 100)
+> plot_rfSRC_importance(rfSRC = rf1, nb_variable = 40)
+> rf1
+                         Sample size: 50000
+                     Number of trees: 100
+          Minimum terminal node size: 100
+       Average no. of terminal nodes: 680.82
+No. of variables tried at each split: 29
+              Total no. of variables: 86
+                            Analysis: RF-R
+                              Family: regr
+                      Splitting rule: mse *random*
+       Number of random split points: 6
+                % variance explained: 1.35
+                          Error rate: 0.16
+
+

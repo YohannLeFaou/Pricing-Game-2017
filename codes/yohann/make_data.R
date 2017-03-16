@@ -7,7 +7,7 @@
 
 
 mean_sd_by_modal = function(data, var_y, var_x, scale_y = 0){
-### fonction qui permet de representer pour une variable quali, la moyenne et l'Ã©cart type par modalitÃ©, ainsi que la
+### fonction qui permet de representer pour une variable quali, la moyenne et l'ÃÂ©cart type par modalitÃÂ©, ainsi que la
 ### la distribution de var_x
 # data : data.frame ; contient var_y et var_x
 # var_y : string ; nom de la variable Y
@@ -300,7 +300,7 @@ b = dummyVars(formula = as.formula( paste0("~", paste0(x_var_quali_freq , collap
 dummy_data_freq = predict(b, newdata = train_freq[,x_var_quali_freq])
 x_var_quali_freq_dummy = colnames(dummy_data_freq)
 
-### certaines variables dummy sont a supprimer, sinon certaines variables sont liées
+### certaines variables dummy sont a supprimer, sinon certaines variables sont liÃ©es
 ### (c'est a cause des variables sur le driver 2 -> valeurs manquantes)
 var_dummy_delete = c("drv_sex2.autre", "drv_age2_quali_freq.[0,1)")
 
@@ -348,7 +348,7 @@ base_cout = merge(x = a2,
 # save(base_cout, file = "base_cout.RData")
 
 
-#Pour ces 5 premiÃ¨res variables je n'ai pas trouvÃ© de seuil intÃ©ressant
+#Pour ces 5 premiÃÂ¨res variables je n'ai pas trouvÃÂ© de seuil intÃÂ©ressant
 
 data_prospect$pol_duration_quali_cout = 
   cut(data_prospect$pol_duration, breaks = c(0,30,Inf),include.lowest = F, right = F, ordered_result = T)
@@ -366,7 +366,7 @@ data_prospect$drv_age2_quali_cout =
 data_prospect$drv_age_lic1_quali_cout =
   cut(data_prospect$drv_age_lic1, breaks = c(0,5,15,30,55,Inf),include.lowest = F, right = F, ordered_result = T)
 
-#Des variabes que j'ai dÃ©coupÃ©
+#Des variabes que j'ai dÃÂ©coupÃÂ©
 
 data_prospect$vh_age_quali_cout = 
   cut(data_prospect$vh_age, breaks = c(1,5,seq(6,15,by=2),Inf),include.lowest = F, right = F, ordered_result = T)
@@ -392,7 +392,7 @@ data_prospect$vh_value_quali_cout =
   cut(data_prospect$vh_value, breaks = c(0,20000,40000,50000,Inf),include.lowest = F,dig.lab = 5,
       right = F, ordered_result = T)
 
-#Je n'ai pas trouvÃ© non plus pour la derniÃ¨re variable
+#Je n'ai pas trouvÃÂ© non plus pour la derniÃÂ¨re variable
 
 data_prospect$vh_weight_quali_cout =
   cut(data_prospect$vh_weight, breaks = c(0,800,1000,1300,1500,1800,Inf),include.lowest = F,dig.lab = 4, 
@@ -460,12 +460,12 @@ mean_sd_by_modal(data = train_freq, var_y = "freq", var_x = "vh_weight_quali_fre
 
 
 
-#ReprÃ©sentation des variables
+#ReprÃÂ©sentation des variables
 s.corcircle(acp$co,xax=1,yax=2)
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------
 #
-#															DÃ©coupage des variables cout
+#															DÃÂ©coupage des variables cout
 #
 #---------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -513,18 +513,18 @@ var_num<-var_num[-grep("freq",var_num)]
 
 #Variables pol_bonus
 scatter_plot("cout","pol_bonus",base_cout,c(0,3000)) 
-#Rien de vraiment significatif. Pourtant, je m'attends Ã  trouver une relation du type bonus=0.5 gros sinistres et plus on se rapproche de 1.5 moins les sinistres
-#sont importants. Un assurÃ© avec un bon bonus n'a pas intÃ©rÃªt Ã  le perdre, il ne rapporte donc que les sinistres graves.
+#Rien de vraiment significatif. Pourtant, je m'attends ÃÂ  trouver une relation du type bonus=0.5 gros sinistres et plus on se rapproche de 1.5 moins les sinistres
+#sont importants. Un assurÃÂ© avec un bon bonus n'a pas intÃÂ©rÃÂªt ÃÂ  le perdre, il ne rapporte donc que les sinistres graves.
 
-#Je ne vois pas oÃ¹ couper
+#Je ne vois pas oÃÂ¹ couper
 
 #Variables pol_bonus
 scatter_plot("cout","pol_duration",base_cout,c(0,2500)) 
-#Difficile Ã  dire. Je couperais rÃ©guliÃ¨rement.
+#Difficile ÃÂ  dire. Je couperais rÃÂ©guliÃÂ¨rement.
 
 #Variables pol_sit_duration
 scatter_plot("cout","pol_sit_duration",base_cout,c(0,4000)) 
-#Difficile Ã  dire. Je couperais rÃ©guliÃ¨rement.
+#Difficile ÃÂ  dire. Je couperais rÃÂ©guliÃÂ¨rement.
 
 #Variables drv_age1
 scatter_plot("cout","drv_age1",base_cout,c(0,5000)) 
@@ -541,9 +541,9 @@ scatter_plot("cout","drv_age_lic2",base_cout,c(0,2500))
 
 #Variables vh_age
 scatter_plot("cout","vh_age",base_cout,c(0,5000)) 
-#Enfin une variables d'intÃ©rÃªt !
+#Enfin une variables d'intÃÂ©rÃÂªt !
 
-#[0,8[ de 2 en 2 jusqu'Ã  15 et ensuite le reste
+#[0,8[ de 2 en 2 jusqu'ÃÂ  15 et ensuite le reste
 
 #Variables vh_cyl
 scatter_plot("cout","vh_cyl",base_cout,c(0,3000)) 
@@ -578,11 +578,11 @@ scatter_plot("cout","vh_value",base_cout,c(0,4000))
 #Variables vh_weight
 scatter_plot("cout","vh_weight",base_cout,c(0,4000)) 
 
-#Couper rÃ©guliÃ¨rement
+#Couper rÃÂ©guliÃÂ¨rement
 
-#Bonus la heatmap (pas Ã©vident Ã  manipuler mais des rÃ©sltats intÃ©ressants)
+#Bonus la heatmap (pas ÃÂ©vident ÃÂ  manipuler mais des rÃÂ©sltats intÃÂ©ressants)
 
 heatmap(prop.table(table(cut(cout, breaks = c(seq(0,1000,by=100),seq(2000,8000,by=1000),Inf)),base_cout$vh_age)))
 
-#Ce qui est intÃ©ressant c'est Ã  la fois l'aspect graphique et la classification hiÃ©rarchique qui se trouve en haut
+#Ce qui est intÃÂ©ressant c'est ÃÂ  la fois l'aspect graphique et la classification hiÃÂ©rarchique qui se trouve en haut
 

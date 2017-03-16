@@ -1,0 +1,29 @@
+
+
+> t2 = Sys.time()
+> rf2 = rfsrc( formula = freq ~ . ,
++              data = train_freq[selected_lines,c("freq",
++                                                 setdiff(x_var_quali_freq_dummy,
++                                                         c(modes_quali_var, var_dummy_delete) ))],
++              ntree = 100, 
++              #nodeepth = 6, 
++              nodesize = 1000,
++              importance = "permute",
++              #nsplit = 2, que des binaires donc pas beoin de ce parametre en fait
++              forest = T,
++              seed = 2017)
+> Sys.time() - t2
+Time difference of 16.44433 mins
+> rf2
+                         Sample size: 50000
+                     Number of trees: 100
+          Minimum terminal node size: 1000
+       Average no. of terminal nodes: 75.17
+No. of variables tried at each split: 29
+              Total no. of variables: 86
+                            Analysis: RF-R
+                              Family: regr
+                      Splitting rule: mse
+                % variance explained: 2.17
+                          Error rate: 0.16
+

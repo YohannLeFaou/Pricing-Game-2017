@@ -1,0 +1,16 @@
+
+- mon idée d'incorporer la frequence comme variable explicative du cout n'est pas possible a mettre en oeuvre car on pourrait faire l'apprentissage comme ça mais on serait bloqué pour la prédiction (on ne dispose alors plus de la variable frequence)
+
+(ça n'empeche pas de tester le pouvoir explicatif de cette variable, pour voir)
+
+- on pourrait penser à utiliser une prediction oob de la frequence àa la fois pour l'appretissage et pour la prédiction mais je ne pense pas que ça veuille dire grand chose.
+
+- comme les id_policy sont les memes d'une année sur l'autre, il est possible de construire un bonus/malus nous meme
+
+
+- les primes proposées doivent etre inferieures a 1.3 fois la moyenne des sinitres
+- une fois les contrats attribués, il ne faut pas que les sinistres soient plus de 1.7 fois les primes récupérées
+
+- je pense que la bonne stratégie est d'être très agressif sur la première année et d'augmenter les primes par la suite
+
+- D'une année sur l'autre, la base prospect ne change pas (enfin les id_policy ne changent pas). il y a quelques variables qui sont modifiées, comme par exemple l'ancienneté du contrat etc...
