@@ -101,8 +101,12 @@ p_valeur = 2*pnorm(-stat)
 # wouh^^ c'est tres significatif !!
 
 ## ok sur les frequences mais y a-t-il une difference sur les cout ?
-freq_
+ratio_accidentés = sum(recap$sum_claim_y1[recap$n_claim_y0 > 0], na.rm = T) / 
+  sum(recap$n_claim_y1[recap$n_claim_y0 > 0], na.rm = T)
+ratio_non_accidentés = sum(recap$sum_claim_y1[recap$n_claim_y0 == 0], na.rm = T) / 
+  sum(recap$n_claim_y1[recap$n_claim_y0 == 0], na.rm = T)
 
+# -> pas de différence ! 
 
 # -----------------------------------------------------------------------------------
 #                              tarif year1
@@ -116,9 +120,30 @@ recap$prime_pure_y1 = recap$prime_pure_y0 *
   (sum(recap$sum_claim_y0) + sum(recap$sum_claim_y1, na.rm = T)) /
   (sum(recap$prime_pure_y0) + sum(recap$prime_pure_y0[recap$is_insured_y1 == 1]))
 
-recap$final_premium_y1 = ifelse((recap$is_insured_y1 == 0) & (recap$ )
+## 4 categories
+# non assure y1, pas d'accident pdt 2 ans : 76960
+sum((recap$is_insured_y1 == 0) & ((recap$n_claim_y0 == 0) & (is.na(recap$n_claim_y1) | (recap$n_claim_y1 == 0))))
+# non assure y1, au moins un accident sur ls 2 premieres annees
+sum((recap$is_insured_y1 == 0) & !((recap$n_claim_y0 == 0) & (is.na(recap$n_claim_y1) | (recap$n_claim_y1 == 0))))
+# assure y1, pas d'accident pdt 2 ans : 
+sum((recap$is_insured_y1 == 1) & ((recap$n_claim_y0 == 0) & (is.na(recap$n_claim_y1) | (recap$n_claim_y1 == 0))))
+# assure y1, au moins un accident sur les 2 années
+sum((recap$is_insured_y1 == 1) & !((recap$n_claim_y0 == 0) & (is.na(recap$n_claim_y1) | (recap$n_claim_y1 == 0))))
 
 
+recap$final_premium_y1 = ifelse((recap$is_insured_y1 == 0) & ((recap$n_claim_y0 == 0) & (is.na(recap$n_claim_y1) | (recap$n_claim_y1 == 0))) , 0.9 * recap$prime_pure_y1 / 1.10,
+                                ifelse( (recap$is_insured_y1 == 0) & !((recap$n_claim_y0 == 0) & (is.na(recap$n_claim_y1) | (recap$n_claim_y1 == 0))) , 1.47 * recap$prime_pure_y1 / 1.05,
+                                        ifelse( (recap$is_insured_y1 == 1) & ((recap$n_claim_y0 == 0) & (is.na(recap$n_claim_y1) | (recap$n_claim_y1 == 0))), 0.9 * recap$prime_pure_y1 / 0.65,
+                                                1.47 * recap$prime_pure_y1 / 0.65 )))
+
+
+## S/P global de la stratégie
+sum(recap$prime_pure_y1) / sum(recap$final_premium_y1)
+
+
+write.csv2(cbind(id_policy = as.character(recap$id_policy), premium = recap$final_premium_y1), 
+          file = "Tarif_year2_Team_Forsides.csv",
+          row.names = F)
 
 
 
