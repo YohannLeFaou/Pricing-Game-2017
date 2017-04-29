@@ -226,9 +226,9 @@ sum((recap$is_insured_y2 == 1) & !((recap$n_claim_y0 == 0) & (is.na(recap$n_clai
 groupe_4 <- (recap$is_insured_y2 == 1) & !((recap$n_claim_y0 == 0) & (is.na(recap$n_claim_y1) | (recap$n_claim_y1 == 0))) & ((recap$n_claim_y1 == 0) & (is.na(recap$n_claim_y2) | (recap$n_claim_y2 == 0)))
 
 recap$final_premium_y2 = ifelse(groupe_1, 0.9 * recap$prime_pure_y2 / 1.10,
-                                ifelse(groupe_2, 1.47 * recap$prime_pure_y2 / 1.05,2017-193
-                                        ifelse(groupe_3, 0.9 * recap$prime_pure_y2 / 0.65,
-                                                1.47 * recap$prime_pure_y2 / 0.65 )))
+                                ifelse(groupe_2, 1.1 * recap$prime_pure_y2 / 0.9,
+                                        ifelse(groupe_3, 0.9 * recap$prime_pure_y2 / 1.10,
+                                                1.1 * recap$prime_pure_y2 / 0.9 )))
 
 
 ## S/P global de la stratégie
